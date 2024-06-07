@@ -444,7 +444,7 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
                                 'assets/icons/player/ic_backward.svg'),
                           ),
                           SizedBox(
-                            width: 120,
+                            width: 150,
                           ),
                           Container(
                             width: 100,
@@ -484,7 +484,7 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
                             ),
                           ),
                           SizedBox(
-                            width: 120,
+                            width: 150,
                           ),
                           IconButton(
                             onPressed: () {

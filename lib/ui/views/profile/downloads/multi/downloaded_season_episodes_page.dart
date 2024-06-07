@@ -915,6 +915,10 @@ class _DownloadedSeasonEpisodesPageState
                                         setState(() {
                                           isTariffLoading = false;
                                         });
+                                        if (episode.tariff
+                                            .toUpperCase() ==
+                                            'BEPUL') tariffExists = true;
+
                                         activeTariffs.forEach((tariff) {
                                           if (tariff.name == episode.tariff ||
                                               episode.tariff.toLowerCase() ==

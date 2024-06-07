@@ -492,7 +492,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                 'assets/icons/player/ic_backward.svg'),
                           ),
                           SizedBox(
-                            width: 120,
+                            width: 150,
                           ),
                           Container(
                             width: 100,
@@ -532,7 +532,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                             ),
                           ),
                           SizedBox(
-                            width: 120,
+                            width: 150,
                           ),
                           IconButton(
                             onPressed: () {

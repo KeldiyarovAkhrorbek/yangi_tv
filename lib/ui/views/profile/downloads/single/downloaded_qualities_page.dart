@@ -39,7 +39,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['name'];
     image = args['image'];
     timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
@@ -135,7 +135,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -163,7 +163,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -273,7 +273,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -301,7 +301,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -415,7 +415,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Tushunarli',
                                       style: GoogleFonts.inter(
@@ -904,13 +904,16 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                       var tariffExists = false;
                                       try {
                                         var activeTariffs =
-                                        await MainRepository()
-                                            .getActiveTariffs();
+                                            await MainRepository()
+                                                .getActiveTariffs();
                                         var profile =
-                                        await MainRepository().getProfile();
+                                            await MainRepository().getProfile();
                                         setState(() {
                                           isTariffLoading = false;
                                         });
+                                        if (task.tariff.toUpperCase() ==
+                                            'BEPUL') tariffExists = true;
+
                                         activeTariffs.forEach((tariff) {
                                           if (tariff.name == task.tariff ||
                                               task.tariff.toLowerCase() ==
@@ -932,11 +935,11 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                         var filepath = '';
                                         if (Platform.isAndroid) {
                                           var temporaryDirectory =
-                                          await getTemporaryDirectory();
+                                              await getTemporaryDirectory();
                                           filepath = temporaryDirectory.path;
                                         } else {
                                           var temporaryDirectory =
-                                          await getLibraryDirectory();
+                                              await getLibraryDirectory();
                                           filepath = temporaryDirectory.path;
                                         }
                                         File file = File(filepath +
@@ -974,7 +977,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/download/ic_play.svg',

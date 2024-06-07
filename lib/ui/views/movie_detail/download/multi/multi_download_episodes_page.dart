@@ -993,6 +993,10 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                         setState(() {
                                           isTariffLoading = false;
                                         });
+                                        if (state.tasks[indexTask].tariff
+                                            .toUpperCase() ==
+                                            'BEPUL') tariffExists = true;
+
                                         activeTariffs.forEach((tariff) {
                                           if (tariff.name ==
                                               state.tasks[indexTask]

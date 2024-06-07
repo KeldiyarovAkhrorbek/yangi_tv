@@ -1077,6 +1077,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         return;
       }
       try {
+        page = 0;
         emit(SearchLoadingState());
         var response = await _mainRepository.getSearchResult(search_text, page);
         lastPage = response['lastPage'];

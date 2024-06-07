@@ -55,7 +55,7 @@ import 'ui/views/movie_detail/watch/multi/seasons_page.dart';
 import 'ui/views/movie_detail/watch/multi/video_player_page_multi.dart';
 import 'ui/views/movie_detail/watch/single/video_player_page_single.dart';
 import 'package:permission_handler/permission_handler.dart'
-as permission_handler;
+    as permission_handler;
 
 late FlutterLocalNotificationsPlugin flutternotifications;
 late AndroidNotificationChannel channel;
@@ -70,7 +70,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   permission_handler.PermissionStatus status =
-  await Permission.notification.request();
+      await Permission.notification.request();
   if (!status.isGranted && Platform.isAndroid) {
     AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
@@ -80,7 +80,7 @@ Future<void> main() async {
   );
 
   NotificationSettings settings =
-  await FirebaseMessaging.instance.requestPermission(
+      await FirebaseMessaging.instance.requestPermission(
     alert: true,
     announcement: false,
     badge: true,
@@ -93,14 +93,14 @@ Future<void> main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  String? databaseCleared50 = await SecureStorage().readSecureData('cleared50');
-  String buildNumber = packageInfo.buildNumber;
-  var versionNumber = int.tryParse(buildNumber) ?? 0;
-  if (versionNumber == 50 && databaseCleared50 == null) {
-    await SecureStorage().writeSecureData('cleared50', 'cleared50');
-    await FileDownloader().database.deleteAllRecords();
-  }
+  // PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  // String? databaseCleared50 = await SecureStorage().readSecureData('cleared50');
+  // String buildNumber = packageInfo.buildNumber;
+  // var versionNumber = int.tryParse(buildNumber) ?? 0;
+  // if (versionNumber >= 50 && databaseCleared50 == null) {
+  //   await SecureStorage().writeSecureData('cleared50', 'cleared50');
+  //   await FileDownloader().database.deleteAllRecords();
+  // }
 
   await FileDownloader().trackTasks();
   FileDownloader().configureNotification(
@@ -435,10 +435,10 @@ Future<void> setupFlutterNotifications() async {
   );
   await flutternotifications
       .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()!
+          AndroidFlutterLocalNotificationsPlugin>()!
       .createNotificationChannel(
-    channel,
-  );
+        channel,
+      );
 
   isNotificationInit = true;
 
