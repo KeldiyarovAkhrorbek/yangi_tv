@@ -70,7 +70,7 @@ class QualityEpisode extends StatelessWidget {
                 SizedBox(
                   height: 2,
                 ),
-              if (state.movie.type == 'multi')
+              if (state.movie.type == 'multi' && state.movie.episodes != null)
                 Row(
                   children: [
                     Container(
@@ -91,7 +91,7 @@ class QualityEpisode extends StatelessWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  state.movie.episodes,
+                                  state.movie.episodes!,
                                   style: GoogleFonts.roboto(
                                     textStyle: TextStyle(
                                       color: Colors.white,
@@ -324,8 +324,10 @@ class QualityEpisode extends StatelessWidget {
                 ),
               ),
             if (state.movie.type == 'multi')
-              SizedBox(height: 2,),
-            if (state.movie.type == 'multi')
+              SizedBox(
+                height: 2,
+              ),
+            if (state.movie.type == 'multi' && state.movie.episodes != null)
               Row(
                 children: [
                   Container(
@@ -346,7 +348,7 @@ class QualityEpisode extends StatelessWidget {
                             ),
                             child: Center(
                               child: Text(
-                                state.movie.episodes,
+                                state.movie.episodes!,
                                 style: GoogleFonts.roboto(
                                   textStyle: TextStyle(
                                     color: Colors.white,

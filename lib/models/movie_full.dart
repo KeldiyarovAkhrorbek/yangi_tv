@@ -8,7 +8,7 @@ class MovieFull {
   String name;
   String? nameRu;
   String? origName;
-  dynamic episodes;
+  String? episodes;
   String? lang;
   int? year;
   List<Country> countries;
