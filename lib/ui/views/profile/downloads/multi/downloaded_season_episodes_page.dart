@@ -915,8 +915,7 @@ class _DownloadedSeasonEpisodesPageState
                                         setState(() {
                                           isTariffLoading = false;
                                         });
-                                        if (episode.tariff
-                                            .toUpperCase() ==
+                                        if (episode.tariff.toUpperCase() ==
                                             'BEPUL') tariffExists = true;
 
                                         activeTariffs.forEach((tariff) {
@@ -937,21 +936,7 @@ class _DownloadedSeasonEpisodesPageState
                                         }
 
                                         //proceed to watch
-                                        var filepath = '';
-                                        if (Platform.isAndroid) {
-                                          var temporaryDirectory =
-                                          await getTemporaryDirectory();
-                                          filepath = temporaryDirectory.path;
-                                        } else {
-                                          var temporaryDirectory =
-                                          await getLibraryDirectory();
-                                          filepath = temporaryDirectory.path;
-                                        }
-                                        File file = File(filepath +
-                                            '/' +
-                                            episode.url.substring(
-                                                episode.url.lastIndexOf("/") +
-                                                    1));
+                                        File file = File(episode.path);
                                         bool exists = await file.exists();
                                         if (exists)
                                           Navigator.of(context).pushNamed(

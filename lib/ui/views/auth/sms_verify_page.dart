@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:blur/blur.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -41,6 +43,152 @@ class _SmsVerifyPageState extends State<SmsVerifyPage> {
     );
     remainingTime = 60;
     startTimer();
+  }
+
+  void openResendCodeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      barrierDismissible: true,
+      builder: (_) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            height: double.infinity,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(),
+                Stack(
+                  children: [
+                    Blur(
+                      blur: 15,
+                      blurColor: HexColor('#4D4D4D'),
+                      child: Container(
+                        width: double.infinity,
+                        child: SizedBox(
+                          height: 350,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 350,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          100,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          SvgPicture.asset(
+                            'assets/icons/auth/ic_dangerous.svg',
+                            height: 50,
+                            width: 50,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              "Kodni qayta yuborishdan oldin telefon raqamingiz hisobi minusda\nemasligiga yoki raqamingiz bloklanmaganiga ishonch hosil qiling!\n\nRAQAMINGIZ BLOKDA EMASMI? AVVAL TEKSHIRING!",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 50.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                RawMaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  fillColor: Colors.white,
+                                  onPressed: () {
+                                    Navigator.of(context).maybePop();
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    child: Text(
+                                      "Yopish",
+                                      style: GoogleFonts.inter(
+                                        textStyle: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                ),
+                                RawMaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  fillColor: HexColor('#FF4747'),
+                                  onPressed: () {
+                                    resendOtp(context);
+                                    Navigator.of(context).maybePop();
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    child: Text(
+                                      'Tekshirdim',
+                                      style: GoogleFonts.inter(
+                                        textStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void startTimer() {
@@ -279,7 +427,7 @@ class _SmsVerifyPageState extends State<SmsVerifyPage> {
                               TextButton(
                                 onPressed: remainingTime == 0
                                     ? () {
-                                        resendOtp(context);
+                                        openResendCodeDialog(context);
                                       }
                                     : null,
                                 child: Text(

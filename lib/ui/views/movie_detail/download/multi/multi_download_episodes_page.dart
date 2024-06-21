@@ -1019,23 +1019,8 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                         }
 
                                         //proceed to watch
-                                        var filepath = '';
-                                        if (Platform.isAndroid) {
-                                          var temporaryDirectory =
-                                          await getTemporaryDirectory();
-                                          filepath = temporaryDirectory.path;
-                                        } else {
-                                          var temporaryDirectory =
-                                          await getLibraryDirectory();
-                                          filepath = temporaryDirectory.path;
-                                        }
-                                        File file = File(filepath +
-                                            '/' +
-                                            state.tasks[indexTask].url
-                                                .substring(state
-                                                .tasks[indexTask].url
-                                                .lastIndexOf("/") +
-                                                1));
+                                        File file =
+                                        File(state.tasks[indexTask].path);
                                         bool exists = await file.exists();
                                         if (exists)
                                           Navigator.of(context).pushNamed(

@@ -15,6 +15,7 @@ class DatabaseTask {
   int remainingTime;
   String? seasonName;
   bool is_multi;
+  String path;
 
   DatabaseTask({
     required this.taskId,
@@ -30,6 +31,7 @@ class DatabaseTask {
     required this.progress,
     required this.remainingTime,
     required this.is_multi,
+    required this.path,
     this.seasonName,
   });
 }

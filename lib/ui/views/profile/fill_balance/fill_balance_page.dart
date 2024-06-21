@@ -31,7 +31,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     userID = args['userID'] as int;
   }
 
@@ -139,29 +139,32 @@ class _FillBalancePageState extends State<FillBalancePage> {
                               top: 0,
                               bottom: 0,
                             ),
-                            child: TextField(
-                              focusNode: paymentFocusNode,
-                              controller: paymentController,
-                              cursorColor: Colors.white,
-                              style: TextStyle(
-                                color: getColor(),
-                              ),
-                              onChanged: (value) {
-                                BlocProvider.of<PaymentBloc>(context).add(
-                                  ChangePaymentErrorEvent(),
-                                );
-                              },
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Summani kiriting...',
-                                hintStyle: TextStyle(
+                            child: Center(
+                              child: TextField(
+                                focusNode: paymentFocusNode,
+                                controller: paymentController,
+                                cursorColor: Colors.white,
+                                style: TextStyle(
                                   color: getColor(),
                                 ),
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: SvgPicture.asset(
-                                    'assets/icons/payment/ic_moneybag.svg',
+                                onChanged: (value) {
+                                  BlocProvider.of<PaymentBloc>(context).add(
+                                    ChangePaymentErrorEvent(),
+                                  );
+                                },
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.only(top: 12),
+                                  border: InputBorder.none,
+                                  hintText: 'Summani kiriting...',
+                                  hintStyle: TextStyle(
+                                    color: getColor(),
+                                  ),
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: SvgPicture.asset(
+                                      'assets/icons/payment/ic_moneybag.svg',
+                                    ),
                                   ),
                                 ),
                               ),
@@ -226,7 +229,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
                               fillColor: HexColor('#FF4747'),
                               onPressed: () {
                                 int? amount =
-                                    int.tryParse(paymentController.text);
+                                int.tryParse(paymentController.text);
                                 BlocProvider.of<PaymentBloc>(context)
                                   ..add(GetUrlEvent(
                                     payMethod,
@@ -253,8 +256,8 @@ class _FillBalancePageState extends State<FillBalancePage> {
                       ),
                       Padding(
                           padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom + 30,
-                      )),
+                            bottom: MediaQuery.of(context).viewInsets.bottom + 30,
+                          )),
                     ],
                   ),
                 ],
@@ -264,7 +267,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
         );
       },
     ).then(
-      (value) {
+          (value) {
         setState(() {
           currentPayment = '';
         });
@@ -352,7 +355,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
                                   children: [
                                     TextSpan(
                                       text:
-                                          "Paynet ilovasi yoki to’lov shahobchasidan ",
+                                      "Paynet ilovasi yoki to’lov shahobchasidan ",
                                       style: GoogleFonts.montserrat(
                                         textStyle: TextStyle(
                                             color: Colors.white,
@@ -480,7 +483,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
                                   children: [
                                     TextSpan(
                                       text:
-                                          "Summani kiriting va to'lovni amalga oshiring.",
+                                      "Summani kiriting va to'lovni amalga oshiring.",
                                       style: GoogleFonts.montserrat(
                                         textStyle: TextStyle(
                                             color: Colors.white,
@@ -535,8 +538,8 @@ class _FillBalancePageState extends State<FillBalancePage> {
                   ),
                   Padding(
                       padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 30,
-                  )),
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 30,
+                      )),
                 ],
               ),
             ],
@@ -544,7 +547,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
         );
       },
     ).then(
-      (value) {
+          (value) {
         setState(() {
           currentPayment = '';
         });
@@ -618,14 +621,13 @@ class _FillBalancePageState extends State<FillBalancePage> {
               height: double.infinity,
               color: show ? Colors.black : Colors.transparent,
             ),
-            title: Text(
+            title:  Text(
               "Hisobni to'ldirish",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.roboto(
+              style: GoogleFonts.montserrat(
                 textStyle: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w400,
-                  fontSize: 16,
+                  fontSize: 15,
                 ),
               ),
             ),
@@ -715,6 +717,15 @@ class _FillBalancePageState extends State<FillBalancePage> {
                           isSvg: false,
                           pressed: () {
                             methodPressed('paynet');
+                          },
+                        ),
+                        ItemPayment(
+                          currentPayment: currentPayment,
+                          paymentName: 'upay',
+                          iconPath: 'assets/icons/payment/upay.png',
+                          isSvg: false,
+                          pressed: () {
+                            methodPressed('upay');
                           },
                         ),
                       ],

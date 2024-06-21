@@ -41,7 +41,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['movie_name'];
     image = args['image'];
     tariff = args['tariff'];
@@ -139,7 +139,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -167,7 +167,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -277,7 +277,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -305,7 +305,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -425,7 +425,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Tushunarli',
                                       style: GoogleFonts.inter(
@@ -730,7 +730,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                             movie_name: movie_name,
                                             name: qualityText,
                                             displayName:
-                                                movie_name + " " + qualityText,
+                                            movie_name + " " + qualityText,
                                             image: image,
                                             url: url,
                                             seasonName: null,
@@ -744,7 +744,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                           vertical: 5, horizontal: 10),
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/profile/ic_download.svg',
@@ -992,23 +992,23 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                       var tariffExists = false;
                                       try {
                                         var activeTariffs =
-                                            await MainRepository()
-                                                .getActiveTariffs();
+                                        await MainRepository()
+                                            .getActiveTariffs();
                                         var profile =
-                                            await MainRepository().getProfile();
+                                        await MainRepository().getProfile();
                                         setState(() {
                                           isTariffLoading = false;
                                         });
                                         if (state.tasks[indexTask].tariff
-                                                .toUpperCase() ==
+                                            .toUpperCase() ==
                                             'BEPUL') tariffExists = true;
 
                                         activeTariffs.forEach((tariff) {
                                           if (tariff.name ==
-                                                  state.tasks[indexTask]
-                                                      .tariff ||
+                                              state.tasks[indexTask]
+                                                  .tariff ||
                                               state.tasks[indexTask].tariff
-                                                      .toUpperCase() ==
+                                                  .toUpperCase() ==
                                                   'BEPUL') {
                                             tariffExists = true;
                                           }
@@ -1025,23 +1025,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                         }
 
                                         //proceed to watch
-                                        var filepath = '';
-                                        if (Platform.isAndroid) {
-                                          var temporaryDirectory =
-                                              await getTemporaryDirectory();
-                                          filepath = temporaryDirectory.path;
-                                        } else {
-                                          var temporaryDirectory =
-                                              await getLibraryDirectory();
-                                          filepath = temporaryDirectory.path;
-                                        }
-                                        File file = File(filepath +
-                                            '/' +
-                                            state.tasks[indexTask].url
-                                                .substring(state
-                                                        .tasks[indexTask].url
-                                                        .lastIndexOf("/") +
-                                                    1));
+                                        File file = File(state.tasks[indexTask].path);
                                         bool exists = await file.exists();
                                         if (exists)
                                           Navigator.of(context).pushNamed(
@@ -1075,7 +1059,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/download/ic_play.svg',

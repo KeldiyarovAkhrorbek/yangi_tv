@@ -5,6 +5,7 @@ import 'package:pinput/pinput.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_events.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/helpers/first_time_tracker.dart';
 
 import '../../../helpers/color_changer.dart';
 import '../navigation/navigation_page.dart';
@@ -32,6 +33,7 @@ class _ChangeUsernamePageState extends State<ChangeUsernamePage> {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state is SuccessState) {
+          FirstTimeTracker.instance.isFirstTime = true;
           Navigator.of(context).pushNamedAndRemoveUntil(
               NavigationPage.routeName, (route) => false);
         }

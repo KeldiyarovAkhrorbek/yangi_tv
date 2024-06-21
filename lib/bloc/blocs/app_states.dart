@@ -247,8 +247,12 @@ class CategoryDetailSuccessState extends CategoryDetailState {
 }
 
 class CategoryDetailErrorState extends CategoryDetailState {
+  String errorText;
+  CategoryDetailErrorState(this.errorText);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [
+    errorText
+  ];
 }
 
 ///favorites

@@ -59,335 +59,337 @@ class _CommentPageState extends State<CommentPage> {
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            backgroundColor: Colors.black,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(60),
-              child: AppBar(
-                leading: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Colors.white,
-                    size: 20,
+          return SafeArea(
+            child: Scaffold(
+              backgroundColor: Colors.black,
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(60),
+                child: AppBar(
+                  leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                backgroundColor: Colors.black,
-                centerTitle: true,
-                iconTheme: IconThemeData(
-                  color: Colors.white,
-                ),
-                title: Column(
-                  children: [
-                    Text(
-                      movie_name,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.ubuntu(
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17,
+                  backgroundColor: Colors.black,
+                  centerTitle: true,
+                  iconTheme: IconThemeData(
+                    color: Colors.white,
+                  ),
+                  title: Column(
+                    children: [
+                      Text(
+                        movie_name,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.ubuntu(
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 17,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      "Izohlar bo'limi",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.ubuntu(
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 12,
+                      Text(
+                        "Izohlar bo'limi",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.ubuntu(
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            body: Builder(
-              builder: (_) {
-                scrollController.addListener(
-                      () async {
-                    if (state is CommentSuccessState && !state.isPaginating) {
-                      if (scrollController.position.pixels ==
-                          scrollController.position.maxScrollExtent) {
-                        BlocProvider.of<CommentBloc>(context).add(
-                          PaginateCommentEvent(),
-                        );
+              body: Builder(
+                builder: (_) {
+                  scrollController.addListener(
+                        () async {
+                      if (state is CommentSuccessState && !state.isPaginating) {
+                        if (scrollController.position.pixels ==
+                            scrollController.position.maxScrollExtent) {
+                          BlocProvider.of<CommentBloc>(context).add(
+                            PaginateCommentEvent(),
+                          );
+                        }
                       }
-                    }
-                  },
-                );
-                if (state is CommentLoadingState)
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
+                    },
                   );
-                if (state is CommentSuccessState) {
-                  return Stack(
-                    children: [
-                      if (state.comments.isNotEmpty)
-                        SingleChildScrollView(
-                          controller: scrollController,
-                          child: Column(
-                            children: [
-                              ListView.builder(
-                                physics: PageScrollPhysics(),
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) =>
-                                    CommentItem(state.comments[index]),
-                                itemCount: state.comments.length,
-                              ),
-                              if (state.isPaginating)
+                  if (state is CommentLoadingState)
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    );
+                  if (state is CommentSuccessState) {
+                    return Stack(
+                      children: [
+                        if (state.comments.isNotEmpty)
+                          SingleChildScrollView(
+                            controller: scrollController,
+                            child: Column(
+                              children: [
+                                ListView.builder(
+                                  physics: PageScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) =>
+                                      CommentItem(state.comments[index]),
+                                  itemCount: state.comments.length,
+                                ),
+                                if (state.isPaginating)
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                if (state.isPaginating)
+                                  Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 SizedBox(
-                                  height: 10,
+                                  height: 150,
                                 ),
-                              if (state.isPaginating)
-                                Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
+                              ],
+                            ),
+                          ),
+                        if (state.comments.isEmpty)
+                          Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/comment/ic_no_comment.svg',
+                                ),
+                                SizedBox(
+                                  height: 25,
+                                ),
+                                Text(
+                                  "Hali hech kim izoh yozmadi,\nsiz birinchi bo'lishingiz mumkin!",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
-                              SizedBox(
-                                height: 150,
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (state.comments.isEmpty)
-                        Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/icons/comment/ic_no_comment.svg',
-                              ),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              Text(
-                                "Hali hech kim izoh yozmadi,\nsiz birinchi bo'lishingiz mumkin!",
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.montserrat(
-                                  textStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
+                                SizedBox(
+                                  height: 50,
                                 ),
-                              ),
-                              SizedBox(
-                                height: 50,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      Visibility(
-                        visible: is_comments,
-                        child: Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                child: Stack(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          right: 10.0, left: 8),
-                                      child: CustomPaint(
-                                        painter: ChatShape(),
-                                        child: Container(
-                                          width: double.infinity,
-                                          height: 100,
+                        Visibility(
+                          visible: is_comments,
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  child: Stack(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 10.0, left: 8),
+                                        child: CustomPaint(
+                                          painter: ChatShape(),
+                                          child: Container(
+                                            width: double.infinity,
+                                            height: 100,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          right: 10.0, left: 8),
-                                      child: Container(
-                                        width:
-                                        MediaQuery.of(context).size.width *
-                                            .84,
-                                        height: 100,
-                                        padding: EdgeInsets.only(
-                                          left: 13,
-                                          right: 13,
-                                          top: 18,
-                                        ),
-                                        child: TextField(
-                                          controller: commentController,
-                                          focusNode: commentFocusNode,
-                                          minLines: 3,
-                                          maxLines: 3,
-                                          style: GoogleFonts.roboto(
-                                            textStyle: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 14,
-                                            ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 10.0, left: 8),
+                                        child: Container(
+                                          width:
+                                          MediaQuery.of(context).size.width *
+                                              .84,
+                                          height: 100,
+                                          padding: EdgeInsets.only(
+                                            left: 13,
+                                            right: 13,
+                                            top: 18,
                                           ),
-                                          onChanged: (value) {
-                                            if (value.trim().length > 0) {
-                                              setState(() {
-                                                canSendComment = true;
-                                              });
-                                            } else {
-                                              setState(() {
-                                                canSendComment = false;
-                                              });
-                                            }
-                                          },
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-                                            errorBorder: InputBorder.none,
-                                            disabledBorder: InputBorder.none,
-                                            hintText: "Izoh kiriting...",
-                                            hintStyle: GoogleFonts.roboto(
+                                          child: TextField(
+                                            controller: commentController,
+                                            focusNode: commentFocusNode,
+                                            minLines: 3,
+                                            maxLines: 3,
+                                            style: GoogleFonts.roboto(
                                               textStyle: TextStyle(
-                                                color: Colors.white
-                                                    .withOpacity(0.7),
+                                                color: Colors.white,
                                                 fontWeight: FontWeight.w400,
                                                 fontSize: 14,
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: double.infinity,
-                                      height: 100,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 15.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            IconButton(
-                                              onPressed: canSendComment
-                                                  ? () {
-                                                BlocProvider.of<
-                                                    CommentBloc>(context)
-                                                  ..add(
-                                                    AddCommentEvent(
-                                                      content_id,
-                                                      commentController
-                                                          .text
-                                                          .trim(),
-                                                    ),
-                                                  );
+                                            onChanged: (value) {
+                                              if (value.trim().length > 0) {
+                                                setState(() {
+                                                  canSendComment = true;
+                                                });
+                                              } else {
+                                                setState(() {
+                                                  canSendComment = false;
+                                                });
                                               }
-                                                  : null,
-                                              icon: SvgPicture.asset(
-                                                'assets/icons/comment/ic_send.svg',
-                                                color: canSendComment
-                                                    ? Colors.white
-                                                    : Colors.white
-                                                    .withOpacity(0.6),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                width: double.infinity,
-                                height: 110,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    stops: [
-                                      0,
-                                      0.8,
-                                      1,
-                                    ],
-                                    colors: [
-                                      Colors.black,
-                                      Colors.black,
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: !is_comments,
-                        child: Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                child: Stack(
-                                  children: [
-                                    Blur(
-                                      child: Container(
-                                          width: double.infinity, height: 100),
-                                      blurColor: Colors.black,
-                                      blur: 10,
-                                    ),
-                                    Container(
-                                      width: double.infinity,
-                                      height: 100,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                        children: [
-                                          SvgPicture.asset(
-                                            'assets/icons/comment/ic_forbidden.svg',
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            "Ushbu kontentga izoh qoldirish o'chirilgan.",
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.inter(
-                                              textStyle: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 13,
+                                            },
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              focusedBorder: InputBorder.none,
+                                              enabledBorder: InputBorder.none,
+                                              errorBorder: InputBorder.none,
+                                              disabledBorder: InputBorder.none,
+                                              hintText: "Izoh kiriting...",
+                                              hintStyle: GoogleFonts.roboto(
+                                                textStyle: TextStyle(
+                                                  color: Colors.white
+                                                      .withOpacity(0.7),
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 14,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ],
+                                        ),
                                       ),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 100,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 15.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                onPressed: canSendComment
+                                                    ? () {
+                                                  BlocProvider.of<
+                                                      CommentBloc>(context)
+                                                    ..add(
+                                                      AddCommentEvent(
+                                                        content_id,
+                                                        commentController
+                                                            .text
+                                                            .trim(),
+                                                      ),
+                                                    );
+                                                }
+                                                    : null,
+                                                icon: SvgPicture.asset(
+                                                  'assets/icons/comment/ic_send.svg',
+                                                  color: canSendComment
+                                                      ? Colors.white
+                                                      : Colors.white
+                                                      .withOpacity(0.6),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  width: double.infinity,
+                                  height: 110,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.bottomCenter,
+                                      end: Alignment.topCenter,
+                                      stops: [
+                                        0,
+                                        0.8,
+                                        1,
+                                      ],
+                                      colors: [
+                                        Colors.black,
+                                        Colors.black,
+                                        Colors.transparent,
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                                width: double.infinity,
-                                height: 100,
-                                color: Colors.transparent,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      )
-                    ],
-                  );
-                }
+                        Visibility(
+                          visible: !is_comments,
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  child: Stack(
+                                    children: [
+                                      Blur(
+                                        child: Container(
+                                            width: double.infinity, height: 100),
+                                        blurColor: Colors.black,
+                                        blur: 10,
+                                      ),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 100,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/icons/comment/ic_forbidden.svg',
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              "Ushbu kontentga izoh qoldirish o'chirilgan.",
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.inter(
+                                                textStyle: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  width: double.infinity,
+                                  height: 100,
+                                  color: Colors.transparent,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  }
 
-                return Container();
-              },
+                  return Container();
+                },
+              ),
             ),
           );
         },

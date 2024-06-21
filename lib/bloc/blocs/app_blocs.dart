@@ -16,6 +16,7 @@ import 'package:safe_device/safe_device.dart';
 import 'package:yangi_tv_new/database/story_db.dart';
 import 'package:yangi_tv_new/helpers/auth_state.dart';
 import 'package:yangi_tv_new/helpers/detect_emulator.dart';
+import 'package:yangi_tv_new/helpers/first_time_tracker.dart';
 import 'package:yangi_tv_new/helpers/secure_storage.dart';
 import 'package:yangi_tv_new/models/category.dart';
 import 'package:yangi_tv_new/models/collection_model.dart';
@@ -51,6 +52,23 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   List<SessionModel> sessions = [];
   String otp = '';
 
+  var numberCodes = [
+    '94',
+    '93',
+    '91',
+    '90',
+    '88',
+    '97',
+    '99',
+    '95',
+    '77',
+    '50',
+    '98',
+    '11',
+    '33',
+    '20',
+  ];
+
   LoginBloc(this._mainRepository)
       : super(EnterPhoneNumberState(isLoading: false, errorText: null)) {
     ///send otp
@@ -69,6 +87,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         String part2 = phoneNumberUnmasked.substring(5, 7);
         String part3 = phoneNumberUnmasked.substring(7, 9);
         phoneNumberMasked = "+998 ($code) $part1 $part2 $part3";
+
+        if (!numberCodes.contains(code)) {
+          emit(EnterPhoneNumberState(
+              isLoading: false,
+              errorText: "Faqatgina o'zbek raqamlaridan\nfoydalanish mumkin!"));
+          return;
+        }
 
         emit(EnterPhoneNumberState(isLoading: true, errorText: null));
         String? message = await _mainRepository.sendOTP(phoneNumberUnmasked);
@@ -131,10 +156,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(DeleteSessionState(isLoading: false, sessions: sessions));
         } else if (data['message'] == 'Успешно') {
           bool isEmulator = await DetectEmulator().isDeviceEmulator();
-          SecureStorage()
+          await SecureStorage()
               .storage
               .write(key: 'token', value: data['data'][0]['token']);
-          SecureStorage()
+          await SecureStorage()
               .storage
               .write(key: 'phone_number_new', value: phoneNumberUnmasked);
           if (phoneNumberUnmasked == '112223344' || isEmulator) {
@@ -173,11 +198,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(DeleteSessionState(isLoading: false, sessions: sessions));
         } else if (data['message'] == 'Успешно') {
           bool isEmulator = await DetectEmulator().isDeviceEmulator();
-          SecureStorage()
+          await SecureStorage()
               .storage
               .write(key: 'token', value: data['data'][0]['token']);
 
-          SecureStorage()
+          await SecureStorage()
               .storage
               .write(key: 'phone_number_new', value: phoneNumberUnmasked);
           if (phoneNumberUnmasked == '112223344' || isEmulator) {
@@ -338,7 +363,7 @@ class TestTokenBloc extends Bloc<TestEvent, TestState> {
         var versionNumber = packageInfo.version;
 
         var shouldUpdate =
-        await _mainRepository.shouldUpdate(platform, versionNumber);
+            await _mainRepository.shouldUpdate(platform, versionNumber);
         if (shouldUpdate) {
           emit(TestTokenDoneState(authState: AuthState.NeedUpdateApp));
           return;
@@ -412,7 +437,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     on<WatchStoryEvent>((event, emit) async {
       var watchedIndex =
-      stories.indexWhere((element) => event.story_id == element.id);
+          stories.indexWhere((element) => event.story_id == element.id);
       stories[watchedIndex].watched = true;
       emit(MainSuccessState(
           banners: banners,
@@ -530,8 +555,11 @@ class CategoryDetailBloc
           }
         }
 
+        emit(CategoryDetailLoadingState());
+        category_movies = [];
+
         var response =
-        await _mainRepository.getCategoryDetail(category_id, page);
+            await _mainRepository.getCategoryDetail(category_id, page);
         lastPage = response['lastPage'];
         page = response['currentPage'];
         var rawList = response['list'] as List;
@@ -544,7 +572,7 @@ class CategoryDetailBloc
         emit(CategoryDetailSuccessState(
             movies: category_movies, isPaginating: false));
       } catch (e) {
-        emit(CategoryDetailErrorState());
+        emit(CategoryDetailErrorState(e.toString()));
       }
     });
 
@@ -558,7 +586,7 @@ class CategoryDetailBloc
         page += 1;
         isLoading = true;
         var response =
-        await _mainRepository.getCategoryDetail(category_id, page);
+            await _mainRepository.getCategoryDetail(category_id, page);
         isLoading = false;
         lastPage = response['lastPage'];
         var rawList = response['list'] as List;
@@ -672,7 +700,7 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
         isUrlWatchLoading = false;
         movieFull = await _mainRepository.getMovieDetail(event.content_id);
         relatedMovies =
-        await _mainRepository.getRelatedMovies(event.content_id);
+            await _mainRepository.getRelatedMovies(event.content_id);
         profile = await _mainRepository.getProfile();
         isFavorite = movieFull.is_favorite;
         reactionType = movieFull.reactions.type;
@@ -706,13 +734,13 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
         favoriteLoading = true;
         if (isFavorite) {
           String? favoriteStatus =
-          await _mainRepository.removeFromFavorite(movieFull.id);
+              await _mainRepository.removeFromFavorite(movieFull.id);
           if (favoriteStatus == 'Успешно удалено!') {
             isFavorite = false;
           }
         } else {
           String? favoriteStatus =
-          await _mainRepository.addToFavorite(movieFull.id);
+              await _mainRepository.addToFavorite(movieFull.id);
           if (favoriteStatus == 'Успешно добавлено') {
             isFavorite = true;
           }
@@ -836,7 +864,7 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
 
         if (movieFull.type == 'single') {
           singleMovieUrl =
-          await _mainRepository.getSingleMovieURL(movieFull.id);
+              await _mainRepository.getSingleMovieURL(movieFull.id);
           isUrlWatchLoading = false;
           isUrlDownloadLoading = false;
           if (event.downloadType == 'watch') {
@@ -927,7 +955,7 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
         if (isLikeLoading) return;
         isLikeLoading = true;
         String? result =
-        await _mainRepository.putReaction(movieFull.id, event.reaction);
+            await _mainRepository.putReaction(movieFull.id, event.reaction);
         isLikeLoading = false;
         if (result == null) return;
         if (result.contains('удален')) {
@@ -1219,6 +1247,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           final link =
               "https://my.click.uz/services/pay?service_id=25162&merchant_id=17642&amount=${event.amount}&transaction_param=${event.userID}&return_url=https://click.uz&card_type";
           emit(PaymentSuccessState(link: link));
+        } else if (event.method == 'upay') {
+          final link =
+              "https://pay.smst.uz/prePay.do?serviceId=1506&apiVersion=1&amount=${event.amount}&personalAccount=${event.userID}";
+          emit(PaymentSuccessState(link: link));
         }
       } catch (e) {
         emit(PaymentErrorState("Noma'lum xatolik yuz berdi"));
@@ -1453,7 +1485,6 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
           newComment: false,
         ));
       } catch (e) {
-        print(e.toString());
         emit(CommentErrorState());
       }
     });
@@ -1497,7 +1528,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
     on<AddCommentEvent>((event, emit) async {
       try {
         String? result =
-        await _mainRepository.addComment(event.content_id, event.text);
+            await _mainRepository.addComment(event.content_id, event.text);
         DateTime now = DateTime.now();
 
         String formattedDate = DateFormat('dd.MM.yyyy HH:mm').format(now);
@@ -1540,9 +1571,9 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
 
   DownloadBloc(this._mainRepository)
       : super(DownloadSuccessState(
-    tasks: [],
-    time: DateTime.now(),
-  )) {
+          tasks: [],
+          time: DateTime.now(),
+        )) {
     on<LoadAllDownloadTasksEvent>((event, emit) async {
       try {
         var records = await FileDownloader().database.allRecords();
@@ -1553,7 +1584,8 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
             await FileDownloader()
                 .database
                 .deleteRecordWithId(record.task.taskId);
-          } else
+          } else {
+            String filePath = await record.task.filePath();
             all_tasks.add(DatabaseTask(
               taskId: record.task.taskId,
               movieName: meta_data['movie_name'],
@@ -1569,7 +1601,9 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
               remainingTime: 0,
               is_multi: meta_data['is_multi'],
               seasonName: meta_data['season_name'],
+              path: filePath,
             ));
+          }
         });
         time = DateTime.now();
         emit(DownloadSuccessState(
@@ -1586,7 +1620,8 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
                 var index = -1;
                 index = all_tasks
                     .indexWhere((element) => element.url == record.task.url);
-                if (index == -1)
+                if (index == -1) {
+                  String filePath = await record.task.filePath();
                   all_tasks.add(DatabaseTask(
                     taskId: record.task.taskId,
                     movieName: meta_data['movie_name'],
@@ -1602,7 +1637,9 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
                     remainingTime: 0,
                     is_multi: meta_data['is_multi'],
                     seasonName: meta_data['season_name'],
+                    path: filePath,
                   ));
+                }
               }
             });
 
@@ -1611,7 +1648,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
                 {
                   var index = -1;
                   index = all_tasks.indexWhere(
-                          (element) => element.taskId == update.task.taskId);
+                      (element) => element.taskId == update.task.taskId);
                   if (index == -1) {
                     return;
                   }
@@ -1624,7 +1661,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
                         .database
                         .deleteRecordWithId(update.task.taskId);
                     all_tasks.removeWhere(
-                            (element) => element.taskId == update.task.taskId);
+                        (element) => element.taskId == update.task.taskId);
                   }
                   break;
                 }
@@ -1633,7 +1670,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
                 {
                   var index = -1;
                   index = all_tasks.indexWhere(
-                          (element) => element.taskId == update.task.taskId);
+                      (element) => element.taskId == update.task.taskId);
                   if (index == -1) {
                     return;
                   }
@@ -1750,7 +1787,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
     on<DeleteTaskEvent>((event, emit) async {
       final Directory directory = await getApplicationSupportDirectory();
       var taskRecord =
-      await FileDownloader().database.recordForId(event.taskId);
+          await FileDownloader().database.recordForId(event.taskId);
       if (taskRecord == null) return;
       if (taskRecord.status == TaskStatus.complete) {
         await FileDownloader().database.deleteRecordWithId(event.taskId);
@@ -1858,7 +1895,7 @@ class CollectionDetailBloc
       collection_id = event.collection_id;
       try {
         var response =
-        await _mainRepository.getCollectionDetail(collection_id, page);
+            await _mainRepository.getCollectionDetail(collection_id, page);
         lastPage = response['lastPage'];
         page = response['currentPage'];
         var rawList = response['list'] as List;
@@ -1885,7 +1922,7 @@ class CollectionDetailBloc
         page += 1;
         isLoading = true;
         var response =
-        await _mainRepository.getCollectionDetail(collection_id, page);
+            await _mainRepository.getCollectionDetail(collection_id, page);
         isLoading = false;
         lastPage = response['lastPage'];
         var rawList = response['list'] as List;

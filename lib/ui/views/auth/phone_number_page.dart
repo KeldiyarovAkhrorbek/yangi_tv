@@ -34,7 +34,7 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
         if (state is VerifyState && onCurrentPage) {
           onCurrentPage = false;
           Navigator.of(context).pushNamed(SmsVerifyPage.routeName).then(
-            (value) {
+                (value) {
               onCurrentPage = true;
             },
           );
@@ -170,7 +170,7 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                                   state.errorText != null)
                                 Text(
                                   state.errorText!,
-                                  textAlign: TextAlign.start,
+                                  textAlign: TextAlign.center,
                                   style: GoogleFonts.roboto(
                                     textStyle: TextStyle(
                                       color: HexColor('#FF0000'),
@@ -207,54 +207,54 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
                                 5,
                               ),
                               onTap: (state is EnterPhoneNumberState &&
-                                      state.isLoading)
+                                  state.isLoading)
                                   ? null
                                   : () {
-                                      BlocProvider.of<LoginBloc>(context).add(
-                                        SendOtpEvent(
-                                            maskFormatter.getUnmaskedText()),
-                                      );
-                                    },
+                                BlocProvider.of<LoginBloc>(context).add(
+                                  SendOtpEvent(
+                                      maskFormatter.getUnmaskedText()),
+                                );
+                              },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
                                   vertical: 10,
                                 ),
                                 child: (state is EnterPhoneNumberState &&
-                                        state.isLoading)
+                                    state.isLoading)
                                     ? Center(
-                                        child: Container(
-                                            width: 26,
-                                            height: 26,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 2,
-                                            )),
-                                      )
+                                  child: Container(
+                                      width: 26,
+                                      height: 26,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      )),
+                                )
                                     : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'DAVOM ETISH',
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.roboto(
-                                              textStyle: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w400,
-                                                height: 0,
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Icon(
-                                            Icons.arrow_forward_outlined,
-                                            color: Colors.white,
-                                          ),
-                                        ],
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'DAVOM ETISH',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.roboto(
+                                        textStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                          height: 0,
+                                          fontSize: 18,
+                                        ),
                                       ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_outlined,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
