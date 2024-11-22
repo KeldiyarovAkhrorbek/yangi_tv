@@ -12,6 +12,7 @@ import 'package:yangi_tv_new/ui/widgets/search_item.dart';
 import '../../../bloc/blocs/app_events.dart';
 import '../../../bloc/repos/mainrepository.dart';
 import '../../../helpers/color_changer.dart';
+import '../movie_detail/movie_detail_page.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -78,6 +79,7 @@ class _SearchPageState extends State<SearchPage>
                     ),
                     child: Center(
                       child: TextField(
+                        focusNode: focusNode,
                         style: GoogleFonts.inter(
                           color: Colors.white,
                           textStyle: TextStyle(
@@ -280,8 +282,22 @@ class _SearchPageState extends State<SearchPage>
                               separatorBuilder: (context, index) => SizedBox(
                                 height: 25,
                               ),
-                              itemBuilder: (context, index) =>
-                                  SearchItem(state.movies[index]),
+                              itemBuilder: (context, index) => SearchItem(
+                                state.movies[index],
+                                () {
+                                  focusNode.unfocus(
+                                      disposition: UnfocusDisposition
+                                          .previouslyFocusedChild);
+                                  Navigator.of(context).pushNamed(
+                                      MovieDetailPage.routeName,
+                                      arguments: {
+                                        'imageUrl': state.movies[index].poster,
+                                        'content_id': state.movies[index].id,
+                                        'movie_name': state.movies[index].name,
+                                        'type': "search",
+                                      });
+                                },
+                              ),
                               itemCount: state.movies.length,
                             ),
                           ),

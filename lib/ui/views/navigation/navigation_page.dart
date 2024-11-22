@@ -31,6 +31,7 @@ class _NavigationPageState extends State<NavigationPage> {
   }
 
   void onTap(int index) {
+    WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
     setState(() {
       _selectedIndex = index;
       _pageController?.jumpToPage(_selectedIndex);

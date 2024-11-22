@@ -54,9 +54,12 @@ class ItemPayment extends StatelessWidget {
                           iconPath,
                           fit: BoxFit.contain,
                         )
-                      : Image.asset(
-                          iconPath,
-                          fit: BoxFit.contain,
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            iconPath,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                 ),
               ),

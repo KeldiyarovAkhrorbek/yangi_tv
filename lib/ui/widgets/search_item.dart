@@ -1,27 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yangi_tv_new/helpers/custom_image_loader.dart';
 import 'package:yangi_tv_new/models/search.dart';
 
 import '../../helpers/color_changer.dart';
-import '../views/movie_detail/movie_detail_page.dart';
 
 class SearchItem extends StatelessWidget {
   Search movie;
+  VoidCallback pressed;
 
-  SearchItem(this.movie);
+  SearchItem(this.movie, this.pressed);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(MovieDetailPage.routeName, arguments: {
-          'imageUrl': movie.poster,
-          'content_id': movie.id,
-          'movie_name': movie.name,
-        });
-      },
+      onTap: pressed,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -30,7 +23,7 @@ class SearchItem extends StatelessWidget {
               10,
             ),
             child: Hero(
-              tag: movie.poster + "${movie.id}",
+              tag: movie.poster + "${movie.id}" + "search",
               child: CustomImageLoader(
                 imageUrl: movie.poster,
                 width: 130,
@@ -144,13 +137,7 @@ class SearchItem extends StatelessWidget {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(5),
-                              onTap: () {
-                                Navigator.of(context).pushNamed(MovieDetailPage.routeName, arguments: {
-                                  'imageUrl': movie.poster,
-                                  'content_id': movie.id,
-                                  'movie_name': movie.name,
-                                });
-                              },
+                              onTap: pressed,
                               child: Padding(
                                 padding: EdgeInsets.only(
                                   right: 10,

@@ -7,6 +7,7 @@ import 'package:cast/device.dart';
 import 'package:cast/discovery_service.dart';
 import 'package:device_apps/device_apps.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_radio_version_plugin/get_radio_version_plugin.dart';
 import 'package:intl/intl.dart';
@@ -31,6 +32,7 @@ import '../../models/active_tariff.dart';
 import '../../models/banner.dart';
 import '../../models/db/database_task.dart';
 import '../../models/movie_full.dart';
+import '../../models/order_model.dart';
 import '../../models/profile.dart';
 import '../../models/season.dart';
 import '../../models/single_movie_url.dart';
@@ -115,7 +117,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     ///resend otp
     on<ResendOtpEvent>((event, emit) async {
       try {
-        await _mainRepository.sendOTP(phoneNumberUnmasked);
+        await _mainRepository.resendOTP(phoneNumberUnmasked);
       } catch (e) {}
     });
 
@@ -374,6 +376,8 @@ class TestTokenBloc extends Bloc<TestEvent, TestState> {
           emit(TestTokenDoneState(authState: AuthState.TokenExpired));
           return;
         }
+
+        debugPrint(token);
 
         var banner = await _mainRepository.getBanners();
 
@@ -1237,15 +1241,17 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           return;
         }
         if (event.method == 'payme') {
+          var paymeMerchantData = await _mainRepository.getPaymeMerchantData();
           Codec<String, String> stringToBase64 = utf8.fuse(base64);
           final decoded =
-              "m=633d3b2ff78e7a020da1feaa;ac.account_id=${event.userID};a=${event.amount! * 100}";
+              "m=${paymeMerchantData.merchantId};ac.account_id=${event.userID};a=${event.amount! * 100}";
           final encoded = stringToBase64.encode(decoded);
           final link = "https://checkout.paycom.uz/$encoded";
           emit(PaymentSuccessState(link: link));
         } else if (event.method == 'click') {
+          var clickMerchantData = await _mainRepository.getClickMerchantData();
           final link =
-              "https://my.click.uz/services/pay?service_id=25162&merchant_id=17642&amount=${event.amount}&transaction_param=${event.userID}&return_url=https://click.uz&card_type";
+              "https://my.click.uz/services/pay?service_id=${clickMerchantData.serviceId}&merchant_id=${clickMerchantData.merchantId}&amount=${event.amount}&transaction_param=${event.userID}&return_url=https://click.uz&card_type";
           emit(PaymentSuccessState(link: link));
         } else if (event.method == 'upay') {
           final link =
@@ -1959,6 +1965,187 @@ class CastBloc extends Bloc<CastEvent, CastState> {
       } catch (e) {
         emit(CastErrorState());
       }
+    });
+  }
+}
+
+//orders
+//orders
+//orders
+class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
+  final MainRepository _mainRepository;
+  int page = 0;
+  int lastPage = -1;
+  List<OrderModel> orders = [];
+  bool isLoading = false;
+  String? errorYear;
+  String? errorName;
+
+  OrdersBloc(this._mainRepository) : super(OrdersLoadingState()) {
+    on<LoadOrdersEvent>((event, emit) async {
+      try {
+        var response = await _mainRepository.getOrders(page);
+        lastPage = response['lastPage'];
+        page = response['currentPage'];
+        List<OrderModel> tempList = [];
+        response['list'].forEach((element) {
+          var ord = OrderModel.fromJson(element);
+          tempList.add(ord);
+        });
+        orders += tempList;
+        emit(
+          OrdersLoadedState(
+            orders: orders,
+            addingOrder: false,
+            isPaginating: false,
+            orderAdded: false,
+            errorName: null,
+            errorYear: null,
+          ),
+        );
+      } catch (e) {
+        emit(OrdersErrorState());
+      }
+    });
+
+    on<PaginateOrdersEvent>((event, emit) async {
+      if (page == lastPage || isLoading) {
+        return;
+      }
+      emit(
+        OrdersLoadedState(
+          orders: orders,
+          addingOrder: false,
+          isPaginating: true,
+          orderAdded: false,
+          errorName: null,
+          errorYear: null,
+        ),
+      );
+      try {
+        page += 1;
+        isLoading = true;
+        var response = await _mainRepository.getOrders(page);
+        isLoading = false;
+        lastPage = response['lastPage'];
+        List<OrderModel> tempList = [];
+        response['list'].forEach((element) {
+          var ord = OrderModel.fromJson(element);
+          tempList.add(ord);
+        });
+        orders += tempList;
+        emit(
+          OrdersLoadedState(
+            orders: orders,
+            addingOrder: false,
+            isPaginating: false,
+            orderAdded: false,
+            errorName: null,
+            errorYear: null,
+          ),
+        );
+      } catch (e) {
+        emit(OrdersErrorState());
+      }
+    });
+
+    on<AddOrderEvent>((event, emit) async {
+      emit(
+        OrdersLoadedState(
+          orders: orders,
+          addingOrder: true,
+          isPaginating: false,
+          orderAdded: false,
+          errorName: null,
+          errorYear: null,
+        ),
+      );
+      try {
+        String message = await _mainRepository.addOrder(event.name, event.year);
+        var isAdded = message == "Успешно!";
+        if (isAdded) {
+          orders.insert(
+            0,
+            OrderModel(
+              id: 1,
+              name: event.name,
+              status: 'opened',
+              contentId: null,
+            ),
+          );
+          emit(
+            OrdersLoadedState(
+              orders: orders,
+              addingOrder: false,
+              isPaginating: false,
+              orderAdded: true,
+              errorName: null,
+              errorYear: null,
+            ),
+          );
+        } else if (message == "Превышен лимит") {
+          emit(
+            OrdersLoadedState(
+              orders: orders,
+              addingOrder: false,
+              isPaginating: false,
+              orderAdded: false,
+              errorName: "10 kun ichida faqat 1 ta buyurtma berish mumkin!",
+              errorYear: null,
+            ),
+          );
+        } else {
+          emit(
+            OrdersLoadedState(
+              orders: orders,
+              addingOrder: false,
+              isPaginating: false,
+              orderAdded: false,
+              errorName: "Qandaydir xatolik yuz berdi",
+              errorYear: null,
+            ),
+          );
+        }
+      } catch (e) {
+        emit(
+          OrdersLoadedState(
+            orders: orders,
+            addingOrder: false,
+            isPaginating: false,
+            orderAdded: false,
+            errorName: "Qandaydir xatolik yuz berdi, keyinroq urining!",
+            errorYear: null,
+          ),
+        );
+      }
+    });
+
+    on<ChangeOrderNameErrorEvent>((event, emit) async {
+      errorName = event.errorName;
+      emit(
+        OrdersLoadedState(
+          orders: orders,
+          addingOrder: false,
+          isPaginating: false,
+          orderAdded: false,
+          errorName: event.errorName,
+          errorYear: errorYear,
+        ),
+      );
+    });
+
+    on<ChangeOrderYearErrorEvent>((event, emit) async {
+      errorYear = event.errorYear;
+      emit(
+        OrdersLoadedState(
+          orders: orders,
+          addingOrder: false,
+          isPaginating: false,
+          orderAdded: false,
+          errorName: errorName,
+          errorYear: event.errorYear,
+        ),
+      );
     });
   }
 }

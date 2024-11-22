@@ -42,6 +42,8 @@ import 'package:yangi_tv_new/ui/views/profile/downloads/multi/downloaded_season_
 import 'package:yangi_tv_new/ui/views/profile/downloads/multi/downloaded_seasons_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/downloads/single/downloaded_qualities_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/fill_balance/fill_balance_page.dart';
+import 'package:yangi_tv_new/ui/views/profile/orders/orders_page.dart';
+import 'package:yangi_tv_new/ui/views/profile/orders/orders_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/payment_history/payment_history_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/session/session_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/tariffs_page/tariffs_page.dart';
@@ -191,6 +193,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<CastBloc>(
           create: (context) => CastBloc(MainRepository()),
         ),
+        BlocProvider<OrdersBloc>(
+          create: (context) => OrdersBloc(MainRepository()),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -198,6 +203,12 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#E50914')),
           useMaterial3: true,
         ),
+        builder: (context, child) {
+          return MediaQuery(
+            child: child!,
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          );
+        },
         home: RepositoryProvider(
             create: (context) => MainRepository(), child: SplashPage()),
         routes: {
@@ -403,6 +414,13 @@ class MyApp extends StatelessWidget {
                   builder: (_) => RepositoryProvider(
                       create: (context) => MainRepository(),
                       child: CoursesPage()),
+                  settings: settings);
+
+            case OrdersPage.routeName:
+              return CupertinoPageRoute(
+                  builder: (_) => RepositoryProvider(
+                      create: (context) => MainRepository(),
+                      child: OrdersPage()),
                   settings: settings);
           }
         },

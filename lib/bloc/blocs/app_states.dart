@@ -19,6 +19,7 @@ import 'package:yangi_tv_new/models/story.dart';
 import 'package:yangi_tv_new/models/tariff.dart';
 
 import '../../models/movie_full.dart';
+import '../../models/order_model.dart';
 import '../../models/season.dart';
 
 ///login
@@ -38,9 +39,9 @@ class EnterPhoneNumberState extends LoginState {
 
   @override
   List<Object?> get props => [
-    isLoading,
-    errorText,
-  ];
+        isLoading,
+        errorText,
+      ];
 }
 
 class VerifyState extends LoginState {
@@ -54,9 +55,9 @@ class VerifyState extends LoginState {
 
   @override
   List<Object?> get props => [
-    isLoading,
-    errorText,
-  ];
+        isLoading,
+        errorText,
+      ];
 }
 
 class DeleteSessionState extends LoginState {
@@ -70,9 +71,9 @@ class DeleteSessionState extends LoginState {
 
   @override
   List<Object?> get props => [
-    isLoading,
-    sessions,
-  ];
+        isLoading,
+        sessions,
+      ];
 }
 
 class ChangeNameState extends LoginState {
@@ -86,9 +87,9 @@ class ChangeNameState extends LoginState {
 
   @override
   List<Object?> get props => [
-    isLoading,
-    errorText,
-  ];
+        isLoading,
+        errorText,
+      ];
 }
 
 class SuccessState extends LoginState {
@@ -147,10 +148,10 @@ class MainSuccessState extends MainState {
 
   @override
   List<Object?> get props => [
-    banners,
-    categories,
-    stories,
-  ];
+        banners,
+        categories,
+        stories,
+      ];
 }
 
 class MainErrorState extends MainState {
@@ -178,8 +179,8 @@ class GenreSuccessState extends GenreState {
 
   @override
   List<Object?> get props => [
-    genres,
-  ];
+        genres,
+      ];
 }
 
 class GenreErrorState extends GenreState {
@@ -209,9 +210,9 @@ class GenreDetailSuccessState extends GenreDetailState {
 
   @override
   List<Object?> get props => [
-    movies,
-    isPaginating,
-  ];
+        movies,
+        isPaginating,
+      ];
 }
 
 class GenreDetailErrorState extends GenreDetailState {
@@ -241,18 +242,18 @@ class CategoryDetailSuccessState extends CategoryDetailState {
 
   @override
   List<Object?> get props => [
-    movies,
-    isPaginating,
-  ];
+        movies,
+        isPaginating,
+      ];
 }
 
 class CategoryDetailErrorState extends CategoryDetailState {
   String errorText;
+
   CategoryDetailErrorState(this.errorText);
+
   @override
-  List<Object?> get props => [
-    errorText
-  ];
+  List<Object?> get props => [errorText];
 }
 
 ///favorites
@@ -277,9 +278,9 @@ class FavoritesSuccessState extends FavoritesState {
 
   @override
   List<Object?> get props => [
-    movies,
-    isPaginating,
-  ];
+        movies,
+        isPaginating,
+      ];
 }
 
 class FavoritesErrorState extends FavoritesState {
@@ -334,21 +335,21 @@ class MovieDetailLoadedState extends MovieDetailState {
 
   @override
   List<Object?> get props => [
-    movie,
-    relatedMovies,
-    errorUrlText,
-    isUrlWatchLoaded,
-    isUrlWatchLoading,
-    singleMovieURL,
-    seasons,
-    isFavorite,
-    favoriteLoading,
-    isUrlDownloadLoading,
-    reactionType,
-    isUrlDownloadLoaded,
-    likeCount,
-    dislikeCount,
-  ];
+        movie,
+        relatedMovies,
+        errorUrlText,
+        isUrlWatchLoaded,
+        isUrlWatchLoading,
+        singleMovieURL,
+        seasons,
+        isFavorite,
+        favoriteLoading,
+        isUrlDownloadLoading,
+        reactionType,
+        isUrlDownloadLoaded,
+        likeCount,
+        dislikeCount,
+      ];
 }
 
 class MovieDetailErrorState extends MovieDetailState {
@@ -382,9 +383,9 @@ class PersonDetailSuccessState extends PersonDetailState {
 
   @override
   List<Object?> get props => [
-    movies,
-    isPaginating,
-  ];
+        movies,
+        isPaginating,
+      ];
 }
 
 class PersonDetailErrorState extends PersonDetailState {
@@ -414,9 +415,9 @@ class SearchSuccessState extends SearchState {
 
   @override
   List<Object?> get props => [
-    movies,
-    isPaginating,
-  ];
+        movies,
+        isPaginating,
+      ];
 }
 
 class SearchInitialState extends SearchState {
@@ -454,8 +455,8 @@ class ProfileSuccessState extends ProfileState {
 
   @override
   List<Object?> get props => [
-    profile,
-  ];
+        profile,
+      ];
 }
 
 class ProfileErrorState extends ProfileState {
@@ -485,9 +486,9 @@ class SessionSuccessState extends SessionState {
 
   @override
   List<Object?> get props => [
-    current,
-    sessions,
-  ];
+        current,
+        sessions,
+      ];
 }
 
 class SessionErrorState extends SessionState {
@@ -515,8 +516,8 @@ class PaymentSuccessState extends PaymentState {
 
   @override
   List<Object?> get props => [
-    link,
-  ];
+        link,
+      ];
 }
 
 class PaymentErrorState extends PaymentState {
@@ -556,12 +557,12 @@ class TariffSuccessState extends TariffState {
 
   @override
   List<Object?> get props => [
-    tariffs,
-    profile,
-    isBuyingTariff,
-    errorText,
-    boughtTariff,
-  ];
+        tariffs,
+        profile,
+        isBuyingTariff,
+        errorText,
+        boughtTariff,
+      ];
 }
 
 class TariffErrorState extends TariffState {
@@ -593,8 +594,8 @@ class ActiveTariffSuccessState extends ActiveTariffState {
 
   @override
   List<Object?> get props => [
-    active_tariffs,
-  ];
+        active_tariffs,
+      ];
 }
 
 class ActiveTariffErrorState extends ActiveTariffState {
@@ -654,9 +655,9 @@ class PaymentHistorySuccessState extends PaymentHistoryState {
 
   @override
   List<Object?> get props => [
-    historyList,
-    isPaginating,
-  ];
+        historyList,
+        isPaginating,
+      ];
 }
 
 class PaymentHistoryErrorState extends PaymentHistoryState {
@@ -688,10 +689,10 @@ class CommentSuccessState extends CommentState {
 
   @override
   List<Object?> get props => [
-    comments,
-    isPaginating,
-    newComment,
-  ];
+        comments,
+        isPaginating,
+        newComment,
+      ];
 }
 
 class CommentErrorState extends CommentState {
@@ -716,9 +717,9 @@ class DownloadSuccessState extends DownloadState {
 
   @override
   List<Object?> get props => [
-    tasks,
-    time,
-  ];
+        tasks,
+        time,
+      ];
 }
 
 ///collection
@@ -743,9 +744,9 @@ class CollectionSuccessState extends CollectionState {
 
   @override
   List<Object?> get props => [
-    collections,
-    isPaginating,
-  ];
+        collections,
+        isPaginating,
+      ];
 }
 
 class CollectionErrorState extends CollectionState {
@@ -775,16 +776,15 @@ class CollectionDetailSuccessState extends CollectionDetailState {
 
   @override
   List<Object?> get props => [
-    movies,
-    isPaginating,
-  ];
+        movies,
+        isPaginating,
+      ];
 }
 
 class CollectionDetailErrorState extends CollectionDetailState {
   @override
   List<Object?> get props => [];
 }
-
 
 ///cast
 ///cast
@@ -806,11 +806,49 @@ class CastSuccessState extends CastState {
 
   @override
   List<Object?> get props => [
-    devices,
-  ];
+        devices,
+      ];
 }
 
 class CastErrorState extends CastState {
+  @override
+  List<Object?> get props => [];
+}
+
+// orders
+// orders
+// orders
+@immutable
+abstract class OrdersState extends Equatable {}
+
+class OrdersLoadingState extends OrdersState {
+  @override
+  List<Object?> get props => [];
+}
+
+class OrdersLoadedState extends OrdersState {
+  final List<OrderModel> orders;
+  final bool addingOrder;
+  final bool isPaginating;
+  final bool orderAdded;
+  final String? errorName;
+  final String? errorYear;
+
+  OrdersLoadedState({
+    required this.orders,
+    required this.isPaginating,
+    required this.addingOrder,
+    required this.orderAdded,
+    required this.errorName,
+    required this.errorYear,
+  });
+
+  @override
+  List<Object?> get props =>
+      [orders, isPaginating, addingOrder, orderAdded, errorName, errorYear];
+}
+
+class OrdersErrorState extends OrdersState {
   @override
   List<Object?> get props => [];
 }

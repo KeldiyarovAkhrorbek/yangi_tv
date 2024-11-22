@@ -18,6 +18,7 @@ import 'package:yangi_tv_new/ui/views/landing/landing_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/active_tariffs/active_tariffs_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/downloads/downloads_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/fill_balance/fill_balance_page.dart';
+import 'package:yangi_tv_new/ui/views/profile/orders/orders_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/payment_history/payment_history_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/session/session_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/tariffs_page/tariffs_page.dart';
@@ -126,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -152,14 +153,123 @@ class _ProfilePageState extends State<ProfilePage> {
                                     );
                                     Navigator.of(context)
                                         .pushNamedAndRemoveUntil(
-                                        LandingPage.routeName,
+                                            LandingPage.routeName,
                                             (route) => false);
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
+                                      style: GoogleFonts.inter(
+                                        textStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void openNoTariffOrderDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      barrierDismissible: true,
+      builder: (_) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            height: double.infinity,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(),
+                Stack(
+                  children: [
+                    Blur(
+                      blur: 7,
+                      blurColor: HexColor('#4D4D4D').withOpacity(1),
+                      child: Container(
+                        width: double.infinity,
+                        child: SizedBox(
+                          height: 250,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          100,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          SvgPicture.asset('assets/icons/watch/ic_warning.svg'),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "Buyurtma qoldirish faqat «Premium»\ntarifini sotib olgan foydalanuvchilar uchun!",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.montserrat(
+                              textStyle: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 50.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                RawMaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  fillColor: HexColor('#FF4747'),
+                                  onPressed: () {
+                                    Navigator.of(context).maybePop();
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    child: Text(
+                                      'Tushundim',
                                       style: GoogleFonts.inter(
                                         textStyle: TextStyle(
                                           color: Colors.white,
@@ -272,7 +382,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Qayta urinish',
                                       style: GoogleFonts.inter(
@@ -309,8 +419,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-      ProfileBloc(RepositoryProvider.of<MainRepository>(context))
-        ..add(GetProfileEvent()),
+          ProfileBloc(RepositoryProvider.of<MainRepository>(context))
+            ..add(GetProfileEvent()),
       child: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is ProfileErrorState)
@@ -446,7 +556,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                  BorderRadius.circular(
+                                                      BorderRadius.circular(
                                                     10,
                                                   ),
                                                   color: HexColor('#959595')
@@ -465,7 +575,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                           color: HexColor(
                                                               '#9A9A9A'),
                                                           fontWeight:
-                                                          FontWeight.w400,
+                                                              FontWeight.w400,
                                                           fontSize: 13,
                                                         ),
                                                       ),
@@ -476,11 +586,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                                         state.profile.name
                                                             .toString(),
                                                         style:
-                                                        GoogleFonts.roboto(
+                                                            GoogleFonts.roboto(
                                                           textStyle: TextStyle(
                                                             color: Colors.white,
                                                             fontWeight:
-                                                            FontWeight.w400,
+                                                                FontWeight.w400,
                                                             fontSize: 13,
                                                           ),
                                                         ),
@@ -495,7 +605,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                  BorderRadius.circular(
+                                                      BorderRadius.circular(
                                                     10,
                                                   ),
                                                   color: HexColor('#959595')
@@ -514,7 +624,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                           color: HexColor(
                                                               '#9A9A9A'),
                                                           fontWeight:
-                                                          FontWeight.w400,
+                                                              FontWeight.w400,
                                                           fontSize: 13,
                                                         ),
                                                       ),
@@ -524,11 +634,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       child: Text(
                                                         state.profile.login,
                                                         style:
-                                                        GoogleFonts.roboto(
+                                                            GoogleFonts.roboto(
                                                           textStyle: TextStyle(
                                                             color: Colors.white,
                                                             fontWeight:
-                                                            FontWeight.w400,
+                                                                FontWeight.w400,
                                                             fontSize: 13,
                                                           ),
                                                         ),
@@ -549,34 +659,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ),
                                                 decoration: BoxDecoration(
                                                   borderRadius:
-                                                  BorderRadius
-                                                      .circular(
+                                                      BorderRadius.circular(
                                                     10,
                                                   ),
-                                                  color: HexColor(
-                                                      '#959595')
+                                                  color: HexColor('#959595')
                                                       .withOpacity(0.2),
                                                 ),
                                                 child: Row(
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment
-                                                      .start,
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
                                                       'Balans: ',
                                                       maxLines: 1,
                                                       overflow:
-                                                      TextOverflow
-                                                          .ellipsis,
-                                                      style: GoogleFonts
-                                                          .roboto(
-                                                        textStyle:
-                                                        TextStyle(
+                                                          TextOverflow.ellipsis,
+                                                      style: GoogleFonts.roboto(
+                                                        textStyle: TextStyle(
                                                           color: HexColor(
                                                               '#9A9A9A'),
                                                           fontWeight:
-                                                          FontWeight
-                                                              .w400,
+                                                              FontWeight.w400,
                                                           fontSize: 13,
                                                         ),
                                                       ),
@@ -586,18 +689,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       child: Text(
                                                         "${state.profile.balance.toInt()}\ UZS",
                                                         maxLines: 1,
-                                                        overflow:
-                                                        TextOverflow
+                                                        overflow: TextOverflow
                                                             .ellipsis,
-                                                        style: GoogleFonts
-                                                            .roboto(
-                                                          textStyle:
-                                                          TextStyle(
-                                                            color: Colors
-                                                                .white,
+                                                        style:
+                                                            GoogleFonts.roboto(
+                                                          textStyle: TextStyle(
+                                                            color: Colors.white,
                                                             fontWeight:
-                                                            FontWeight
-                                                                .w400,
+                                                                FontWeight.w400,
                                                             fontSize: 13,
                                                           ),
                                                         ),
@@ -613,43 +712,36 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 onTap: () async {
                                                   await Clipboard.setData(
                                                       ClipboardData(
-                                                          text: state
-                                                              .profile.id
+                                                          text: state.profile.id
                                                               .toString()));
                                                   Fluttertoast.showToast(
-                                                      msg:
-                                                      "ID nusxalandi!",
-                                                      toastLength: Toast
-                                                          .LENGTH_SHORT,
+                                                      msg: "ID nusxalandi!",
+                                                      toastLength:
+                                                          Toast.LENGTH_SHORT,
                                                       gravity:
-                                                      ToastGravity
-                                                          .BOTTOM,
-                                                      timeInSecForIosWeb:
-                                                      1,
+                                                          ToastGravity.BOTTOM,
+                                                      timeInSecForIosWeb: 1,
                                                       backgroundColor:
-                                                      Colors.grey,
-                                                      textColor:
-                                                      Colors.white,
+                                                          Colors.grey,
+                                                      textColor: Colors.white,
                                                       fontSize: 16.0);
                                                 },
                                                 child: Container(
-                                                  padding: EdgeInsets
-                                                      .symmetric(
+                                                  padding: EdgeInsets.symmetric(
                                                       horizontal: 10,
                                                       vertical: 5),
-                                                  decoration:
-                                                  BoxDecoration(
+                                                  decoration: BoxDecoration(
                                                     borderRadius:
-                                                    BorderRadius
-                                                        .circular(
+                                                        BorderRadius.circular(
                                                       10,
                                                     ),
-                                                    color: HexColor(
-                                                        '#959595')
+                                                    color: HexColor('#959595')
                                                         .withOpacity(0.2),
                                                   ),
                                                   child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                     children: [
                                                       Row(
                                                         children: [
@@ -657,17 +749,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                                             'ID: ',
                                                             maxLines: 1,
                                                             overflow:
-                                                            TextOverflow
-                                                                .ellipsis,
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                             style: GoogleFonts
                                                                 .roboto(
                                                               textStyle:
-                                                              TextStyle(
+                                                                  TextStyle(
                                                                 color: HexColor(
                                                                     '#9A9A9A'),
                                                                 fontWeight:
-                                                                FontWeight
-                                                                    .w400,
+                                                                    FontWeight
+                                                                        .w400,
                                                                 fontSize: 13,
                                                               ),
                                                             ),
@@ -677,26 +769,28 @@ class _ProfilePageState extends State<ProfilePage> {
                                                                 .toString(),
                                                             maxLines: 1,
                                                             overflow:
-                                                            TextOverflow
-                                                                .ellipsis,
-                                                            style:
-                                                            GoogleFonts
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: GoogleFonts
                                                                 .roboto(
                                                               textStyle:
-                                                              TextStyle(
+                                                                  TextStyle(
                                                                 color: Colors
                                                                     .white,
                                                                 fontWeight:
-                                                                FontWeight
-                                                                    .w400,
-                                                                fontSize:
-                                                                13,
+                                                                    FontWeight
+                                                                        .w400,
+                                                                fontSize: 13,
                                                               ),
                                                             ),
                                                           ),
                                                         ],
                                                       ),
-                                                      Icon(Icons.copy, size: 15, color: Colors.white,),
+                                                      Icon(
+                                                        Icons.copy,
+                                                        size: 15,
+                                                        color: Colors.white,
+                                                      ),
                                                     ],
                                                   ),
                                                 ),
@@ -711,12 +805,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 SizedBox(
                                   height: 10,
                                 ),
-                                buildAction(
-                                  icon: 'assets/icons/profile/ic_buy.svg',
-                                  title: "Tarif sotib olish",
-                                  color: '#FFFFFF',
-                                  pressed: buyTariffPressed,
-                                ),
+
                                 buildAction(
                                   icon: 'assets/icons/profile/ic_wallet.svg',
                                   title: "Balansni to'ldirish",
@@ -726,18 +815,38 @@ class _ProfilePageState extends State<ProfilePage> {
                                         context, state.profile.id);
                                   },
                                 ),
+
                                 buildAction(
-                                  icon: 'assets/icons/profile/ic_calendar.svg',
-                                  title: "To'lovlar tarixi",
+                                  icon: 'assets/icons/profile/ic_buy.svg',
+                                  title: "Tarif sotib olish",
                                   color: '#FFFFFF',
-                                  pressed: paymentHistoryPressed,
+                                  pressed: buyTariffPressed,
                                 ),
+
                                 buildAction(
                                   icon: 'assets/icons/profile/ic_bought.svg',
                                   title: "Sotib olingan, faol tariflar",
                                   color: '#FFFFFF',
                                   pressed: activeTariffPressed,
                                 ),
+
+                                buildAction(
+                                  icon: 'assets/icons/profile/ic_calendar.svg',
+                                  title: "To'lovlar tarixi",
+                                  color: '#FFFFFF',
+                                  pressed: paymentHistoryPressed,
+                                ),
+
+                                buildAction(
+                                  icon: 'assets/icons/profile/ic_order.svg',
+                                  title: "Buyurtmalar stoli",
+                                  color: "#22a848",
+                                  pressed: () {
+                                    orderTablePressed(
+                                        state.profile.expireTariff);
+                                  },
+                                ),
+
                                 buildAction(
                                   icon: 'assets/icons/profile/ic_download.svg',
                                   title: "Yuklangan film va seriallar",
@@ -773,7 +882,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 Padding(
                                   padding:
-                                  EdgeInsets.symmetric(horizontal: 8.0),
+                                      EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Container(
                                     width: double.infinity,
                                     height: 1,
@@ -1012,6 +1121,14 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.of(context).pushNamed(ActiveTariffsPage.routeName);
   }
 
+  void orderTablePressed(String? tariff_expireAt) {
+    if (tariff_expireAt == null) {
+      openNoTariffOrderDialog(context);
+      return;
+    }
+    Navigator.of(context).pushNamed(OrdersPage.routeName);
+  }
+
   void downloadsPressed() {
     Navigator.of(context).pushNamed(DownloadsPage.routeName);
   }
@@ -1218,6 +1335,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   );
                                 },
                                 decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.only(top: 12),
                                   border: InputBorder.none,
                                   hintText: 'Promokod...',
                                   hintStyle: TextStyle(
@@ -1275,7 +1393,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 },
                                 child: Padding(
                                   padding:
-                                  EdgeInsets.symmetric(horizontal: 40.0),
+                                      EdgeInsets.symmetric(horizontal: 40.0),
                                   child: Text(
                                     'Bekor qilish',
                                     style: GoogleFonts.inter(
@@ -1302,7 +1420,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 },
                                 child: Padding(
                                   padding:
-                                  EdgeInsets.symmetric(horizontal: 60.0),
+                                      EdgeInsets.symmetric(horizontal: 60.0),
                                   child: Text(
                                     "Kiritish",
                                     style: GoogleFonts.inter(
@@ -1320,8 +1438,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         Padding(
                             padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom + 30,
-                            )),
+                          bottom: MediaQuery.of(context).viewInsets.bottom + 30,
+                        )),
                       ],
                     ),
                   ],

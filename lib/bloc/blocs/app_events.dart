@@ -598,3 +598,54 @@ class GetCastDevicesEvent extends CastEvent {
   @override
   List<Object?> get props => [];
 }
+
+
+//Orders
+//Orders
+//Orders
+@immutable
+abstract class OrdersEvent extends Equatable {
+  const OrdersEvent();
+}
+
+class LoadOrdersEvent extends OrdersEvent {
+  LoadOrdersEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class AddOrderEvent extends OrdersEvent {
+  final String name;
+  final String year;
+
+  AddOrderEvent(this.name, this.year);
+
+  @override
+  List<Object?> get props => [];
+}
+
+class PaginateOrdersEvent extends OrdersEvent {
+  PaginateOrdersEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class ChangeOrderNameErrorEvent extends OrdersEvent {
+  final String? errorName;
+
+  ChangeOrderNameErrorEvent(this.errorName);
+
+  @override
+  List<Object?> get props => [];
+}
+
+class ChangeOrderYearErrorEvent extends OrdersEvent {
+  final String? errorYear;
+
+  ChangeOrderYearErrorEvent(this.errorYear);
+
+  @override
+  List<Object?> get props => [];
+}

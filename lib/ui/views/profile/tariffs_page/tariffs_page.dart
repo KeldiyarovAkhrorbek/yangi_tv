@@ -56,9 +56,7 @@ class _TariffsPageState extends State<TariffsPage> {
       builder: (_) {
         return BlocConsumer<TariffBloc, TariffState>(
           bloc: tariffBloc,
-          listener: (context, state) async {
-
-          },
+          listener: (context, state) async {},
           builder: (context, state) {
             if (state is TariffSuccessState)
               return SingleChildScrollView(
@@ -321,7 +319,8 @@ class _TariffsPageState extends State<TariffsPage> {
                                           onPressed: () {
                                             //show active tariff
                                             Navigator.of(context).pop();
-                                            Navigator.of(context).pushNamed(ActiveTariffsPage.routeName);
+                                            Navigator.of(context).pushNamed(
+                                                ActiveTariffsPage.routeName);
                                           },
                                           child: Padding(
                                             padding: EdgeInsets.symmetric(
@@ -544,9 +543,7 @@ class _TariffsPageState extends State<TariffsPage> {
           TariffBloc(RepositoryProvider.of<MainRepository>(context))
             ..add(GetTariffsEvent(tariff_filter)),
       child: BlocConsumer<TariffBloc, TariffState>(
-        listener: (context, state) async {
-          print(state);
-        },
+        listener: (context, state) async {},
         builder: (context, state) {
           return SafeArea(
             child: Scaffold(
@@ -662,7 +659,7 @@ class _TariffsPageState extends State<TariffsPage> {
                           child: Column(
                             children: [
                               SizedBox(
-                                height: 40,
+                                height: 60,
                               ),
                               ListView.separated(
                                 shrinkWrap: true,
@@ -675,7 +672,7 @@ class _TariffsPageState extends State<TariffsPage> {
                                   if (!state.tariffs[index].name
                                       .toLowerCase()
                                       .contains(tariff_filter.toLowerCase())) {
-                                    return Container();
+                                    return SizedBox();
                                   }
 
                                   if (state.tariffs[index].name

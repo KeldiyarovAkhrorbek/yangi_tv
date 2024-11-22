@@ -31,7 +31,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     userID = args['userID'] as int;
   }
 
@@ -229,7 +229,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
                               fillColor: HexColor('#FF4747'),
                               onPressed: () {
                                 int? amount =
-                                int.tryParse(paymentController.text);
+                                    int.tryParse(paymentController.text);
                                 BlocProvider.of<PaymentBloc>(context)
                                   ..add(GetUrlEvent(
                                     payMethod,
@@ -256,8 +256,8 @@ class _FillBalancePageState extends State<FillBalancePage> {
                       ),
                       Padding(
                           padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom + 30,
-                          )),
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 30,
+                      )),
                     ],
                   ),
                 ],
@@ -267,7 +267,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
         );
       },
     ).then(
-          (value) {
+      (value) {
         setState(() {
           currentPayment = '';
         });
@@ -277,7 +277,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
     );
   }
 
-  void openPaynetDialog() {
+  void openPaynetDialog(String paymentName, String image) {
     showModalBottomSheet(
       context: context,
       barrierColor: Colors.transparent,
@@ -321,7 +321,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
                   ),
                   Center(
                     child: Image.asset(
-                      'assets/icons/payment/paynet.png',
+                      image,
                       width: 100,
                       height: 50,
                     ),
@@ -355,7 +355,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
                                   children: [
                                     TextSpan(
                                       text:
-                                      "Paynet ilovasi yoki to’lov shahobchasidan ",
+                                          "${paymentName} ilovasi yoki to'lov shahobchasidan ",
                                       style: GoogleFonts.montserrat(
                                         textStyle: TextStyle(
                                             color: Colors.white,
@@ -438,8 +438,9 @@ class _FillBalancePageState extends State<FillBalancePage> {
                               ),
                             ),
                             IconButton(
-                              onPressed: () async{
-                                await Clipboard.setData(ClipboardData(text: userID.toString()));
+                              onPressed: () async {
+                                await Clipboard.setData(
+                                    ClipboardData(text: userID.toString()));
                                 Fluttertoast.showToast(
                                     msg: "ID nusxalandi!",
                                     toastLength: Toast.LENGTH_SHORT,
@@ -447,8 +448,561 @@ class _FillBalancePageState extends State<FillBalancePage> {
                                     timeInSecForIosWeb: 1,
                                     backgroundColor: Colors.grey,
                                     textColor: Colors.white,
-                                    fontSize: 16.0
-                                );
+                                    fontSize: 16.0);
+                              },
+                              icon: Icon(
+                                Icons.copy,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "3.",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          "Summani kiriting va to'lovni amalga oshiring.",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RawMaterialButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          fillColor: Colors.white,
+                          onPressed: () {
+                            Navigator.of(context).maybePop();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 40.0),
+                            child: Text(
+                              'Ortga qaytish',
+                              style: GoogleFonts.inter(
+                                textStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 30,
+                  )),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    ).then(
+      (value) {
+        setState(() {
+          currentPayment = '';
+        });
+      },
+    );
+  }
+
+  void openOtherDialog(String paymentName, String image) {
+    showModalBottomSheet(
+      context: context,
+      barrierColor: Colors.transparent,
+      shape: LinearBorder(),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return SingleChildScrollView(
+          child: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 400,
+                color: Colors.transparent,
+              ).blurred(
+                blur: 20,
+                blurColor: HexColor('#4D4D4D'),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Divider(
+                    height: 0.5,
+                    color: HexColor('#4D4D4D'),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "To'lov tizimi tanlandi:",
+                    style: GoogleFonts.montserrat(
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Center(
+                    child: Image.asset(
+                      image,
+                      width: 100,
+                      height: 50,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "1.",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "${paymentName} ilovasidan ",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "«Yangi TV» ",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: HexColor('#FF0000'),
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "ilovasini tanlang.",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "2.",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Ushbu ID raqamni kiriting:  ",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: userID.toString(),
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: HexColor('#FF0000'),
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                await Clipboard.setData(
+                                    ClipboardData(text: userID.toString()));
+                                Fluttertoast.showToast(
+                                    msg: "ID nusxalandi!",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.grey,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                              },
+                              icon: Icon(
+                                Icons.copy,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "3.",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          "Summani kiriting va to'lovni amalga oshiring.",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RawMaterialButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          fillColor: Colors.white,
+                          onPressed: () {
+                            Navigator.of(context).maybePop();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 40.0),
+                            child: Text(
+                              'Ortga qaytish',
+                              style: GoogleFonts.inter(
+                                textStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 30,
+                  )),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    ).then(
+      (value) {
+        setState(() {
+          currentPayment = '';
+        });
+      },
+    );
+  }
+
+  void openCashDialog(String paymentName, String image) {
+    showModalBottomSheet(
+      context: context,
+      barrierColor: Colors.transparent,
+      shape: LinearBorder(),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return SingleChildScrollView(
+          child: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 400,
+                color: Colors.transparent,
+              ).blurred(
+                blur: 20,
+                blurColor: HexColor('#4D4D4D'),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Divider(
+                    height: 0.5,
+                    color: HexColor('#4D4D4D'),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "To'lov tizimi tanlandi:",
+                    style: GoogleFonts.montserrat(
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Center(
+                    child: Image.asset(
+                      image,
+                      width: 100,
+                      height: 50,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "1.",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "${paymentName} to'lov shahobchasidan ",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "«Yangi TV» ",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: HexColor('#FF0000'),
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "ilovasini tanlang.",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "2.",
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Ushbu ID raqamni kiriting:  ",
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: userID.toString(),
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: TextStyle(
+                                            color: HexColor('#FF0000'),
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            letterSpacing: 0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                await Clipboard.setData(
+                                    ClipboardData(text: userID.toString()));
+                                Fluttertoast.showToast(
+                                    msg: "ID nusxalandi!",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.grey,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
                               },
                               icon: Icon(
                                 Icons.copy,
@@ -621,7 +1175,7 @@ class _FillBalancePageState extends State<FillBalancePage> {
               height: double.infinity,
               color: show ? Colors.black : Colors.transparent,
             ),
-            title:  Text(
+            title: Text(
               "Hisobni to'ldirish",
               style: GoogleFonts.montserrat(
                 textStyle: TextStyle(
@@ -660,78 +1214,130 @@ class _FillBalancePageState extends State<FillBalancePage> {
             ),
             Container(
               width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 70,
-                  ),
-                  Text(
-                    "To'lov tizimini tanlang:",
-                    style: GoogleFonts.montserrat(
-                      textStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 15,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 70,
+                    ),
+                    Text(
+                      "To'lov tizimini tanlang:",
+                      style: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 0),
-                    child: GridView(
-                      padding: EdgeInsets.zero,
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 1,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                      ),
-                      children: [
-                        ItemPayment(
-                          currentPayment: currentPayment,
-                          paymentName: 'payme',
-                          iconPath: 'assets/icons/payment/payme.png',
-                          isSvg: false,
-                          pressed: () {
-                            methodPressed('payme');
-                          },
-                        ),
-                        ItemPayment(
-                          currentPayment: currentPayment,
-                          paymentName: 'click',
-                          iconPath: 'assets/icons/payment/click.png',
-                          isSvg: false,
-                          pressed: () {
-                            methodPressed('click');
-                          },
-                        ),
-                        ItemPayment(
-                          currentPayment: currentPayment,
-                          paymentName: 'paynet',
-                          iconPath: 'assets/icons/payment/paynet.png',
-                          isSvg: false,
-                          pressed: () {
-                            methodPressed('paynet');
-                          },
-                        ),
-                        ItemPayment(
-                          currentPayment: currentPayment,
-                          paymentName: 'upay',
-                          iconPath: 'assets/icons/payment/upay.png',
-                          isSvg: false,
-                          pressed: () {
-                            methodPressed('upay');
-                          },
-                        ),
-                      ],
+                    SizedBox(
+                      height: 10,
                     ),
-                  )
-                ],
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 0),
+                      child: GridView(
+                        padding: EdgeInsets.zero,
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 1,
+                        ),
+                        children: [
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'payme',
+                            iconPath: 'assets/icons/payment/payme.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('payme');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'click',
+                            iconPath: 'assets/icons/payment/click.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('click');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'Paynet',
+                            iconPath: 'assets/icons/payment/paynet.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('Paynet',
+                                  image: 'assets/icons/payment/paynet.png');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'upay',
+                            iconPath: 'assets/icons/payment/upay.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('upay');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'Beepul',
+                            iconPath: 'assets/icons/payment/Beepul.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('Beepul',
+                                  image: 'assets/icons/payment/Beepul.png');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'Humans',
+                            iconPath: 'assets/icons/payment/Humans.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('Humans',
+                                  image: 'assets/icons/payment/Humans.png');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'Trastpay',
+                            iconPath: 'assets/icons/payment/trastpay.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('Trastpay',
+                                  image: 'assets/icons/payment/trastpay.png');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'Xazna',
+                            iconPath: 'assets/icons/payment/xazna.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('Xazna',
+                                  image: 'assets/icons/payment/xazna.png');
+                            },
+                          ),
+                          ItemPayment(
+                            currentPayment: currentPayment,
+                            paymentName: 'Naqd',
+                            iconPath: 'assets/icons/payment/naqd.png',
+                            isSvg: false,
+                            pressed: () {
+                              methodPressed('Naqd',
+                                  image: 'assets/icons/payment/naqd.png');
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ],
@@ -740,14 +1346,28 @@ class _FillBalancePageState extends State<FillBalancePage> {
     );
   }
 
-  void methodPressed(String method) {
+  void methodPressed(String method, {String image = ""}) {
     setState(() {
       currentPayment = method;
     });
-    if (method == 'paynet') {
-      openPaynetDialog();
+    if (method == 'Paynet') {
+      openPaynetDialog(method, image);
       return;
     }
+
+    if (method == 'Beepul' ||
+        method == 'Humans' ||
+        method == 'Trastpay' ||
+        method == 'Xazna') {
+      openOtherDialog(method, image);
+      return;
+    }
+
+    if (method == 'Naqd') {
+      openCashDialog('Paynet', 'assets/icons/payment/naqd.png');
+      return;
+    }
+
     openPaymentDialog(method);
   }
 }

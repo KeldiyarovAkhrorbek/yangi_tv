@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:yangi_tv_new/helpers/secure_storage.dart';
 import 'package:yangi_tv_new/models/active_tariff.dart';
+import 'package:yangi_tv_new/models/merchant_data_click.dart';
+import 'package:yangi_tv_new/models/order_model.dart';
 import 'package:yangi_tv_new/models/story.dart';
 import 'package:yangi_tv_new/models/tariff.dart';
 import '../../helpers/constants.dart';
@@ -9,6 +11,7 @@ import '../../models/Movie_Short.dart';
 import '../../models/banner.dart';
 import '../../models/category.dart';
 import '../../models/genre.dart';
+import '../../models/merchant_data_payme.dart';
 import '../../models/movie_full.dart';
 import '../../models/profile.dart';
 import '../../models/season.dart';
@@ -18,6 +21,16 @@ class MainRepository {
   Future<String?> sendOTP(String phoneNumberUnmasked) async {
     final response = await Dio().post(
       Constants.baseRegUrl + 'login',
+      queryParameters: {
+        'login': '998' + phoneNumberUnmasked,
+      },
+    );
+    return response.data['message'];
+  }
+
+  Future<String?> resendOTP(String phoneNumberUnmasked) async {
+    final response = await Dio().post(
+      Constants.baseRegUrl + 'resend',
       queryParameters: {
         'login': '998' + phoneNumberUnmasked,
       },
@@ -598,5 +611,64 @@ class MainRepository {
       ),
     );
     return response.data['data'];
+  }
+
+  Future<MerchantDataClick> getClickMerchantData() async {
+    String? token = await SecureStorage().getToken();
+    final response = await Dio().get(
+      Constants.baseUrl + 'vendor-params',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer ${token}',
+        },
+      ),
+    );
+    return MerchantDataClick.fromJson(response.data['data']["click"]);
+  }
+
+  Future<MerchantDataPayme> getPaymeMerchantData() async {
+    String? token = await SecureStorage().getToken();
+    final response = await Dio().get(
+      Constants.baseUrl + 'vendor-params',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer ${token}',
+        },
+      ),
+    );
+    return MerchantDataPayme.fromJson(response.data['data']["payme"]);
+  }
+
+  Future<dynamic> getOrders(int page) async {
+    String? token = await SecureStorage().getToken();
+    final response = await Dio().get(
+      Constants.baseUrl + 'profile/getOrderContent',
+      queryParameters: {
+        'page': page,
+      },
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer ${token}',
+        },
+      ),
+    );
+    return response.data['data'];
+  }
+
+  Future<String> addOrder(String name, String year) async {
+    String? token = await SecureStorage().getToken();
+    final response = await Dio().post(
+      Constants.baseUrl + 'profile/addOrderContent',
+      queryParameters: {
+        'name': name,
+        'year': year,
+      },
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer ${token}',
+        },
+      ),
+    );
+    return response.data['message'];
   }
 }

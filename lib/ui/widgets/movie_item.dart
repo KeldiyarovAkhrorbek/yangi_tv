@@ -38,7 +38,7 @@ class MovieItem extends StatelessWidget {
                   child: HeroMode(
                     enabled: isHero,
                     child: Hero(
-                      tag: movie.poster + "${movie.id}",
+                      tag: movie.poster + "${movie.id}" + "main",
                       transitionOnUserGestures: true,
                       child: CustomImageLoader(
                         imageUrl: movie.poster,

@@ -45,6 +45,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String imageUrl = '';
   int content_id = 0;
   String movie_name = '';
+  String? type;
 
   @override
   void didChangeDependencies() {
@@ -54,13 +55,15 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     if (args['imageUrl'] != null) imageUrl = args['imageUrl'] as String;
     content_id = args['content_id'] as int;
     if (args['movie_name'] != null) movie_name = args['movie_name'] as String;
+    if (args['type'] != null) type = args['type'];
   }
 
   Widget buildActor(Actor actor, VoidCallback pressed) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(PersonDetailPage.routeName, arguments: {
-          'person_name': Translit().toTranslit(source: actor.name.replaceAll("Дж", "Ж").replaceAll("дж", "ж")),
+          'person_name': Translit().toTranslit(
+              source: actor.name.replaceAll("Дж", "Ж").replaceAll("дж", "ж")),
           'person_id': actor.id,
           'person_image': actor.image,
         });
@@ -83,7 +86,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               height: 5,
             ),
             Text(
-              Translit().toTranslit(source: actor.name.replaceAll("Дж", "Ж").replaceAll("дж", "ж")),
+              Translit().toTranslit(
+                  source:
+                      actor.name.replaceAll("Дж", "Ж").replaceAll("дж", "ж")),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.openSans(
@@ -220,6 +225,147 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   String proceedType = '';
 
+  void openWarningDialog(BuildContext context, VoidCallback proceedPressed) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      barrierDismissible: true,
+      builder: (_) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            height: double.infinity,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(),
+                Stack(
+                  children: [
+                    Blur(
+                      blur: 7,
+                      blurColor: HexColor('#4D4D4D').withOpacity(1),
+                      child: Container(
+                        width: double.infinity,
+                        child: SizedBox(
+                          height: 250,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          100,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          SvgPicture.asset(
+                              'assets/icons/watch/ic_warning.svg'),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              "Ushbu kontent uchun yosh chegarasi 18+ deb belgilangan.\nSiz 18 yoshdan oshganmisiz?",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 50.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                RawMaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  fillColor: Colors.white,
+                                  onPressed: () {
+                                    Navigator.of(context).maybePop();
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    child: Text(
+                                      "Yo'q",
+                                      style: GoogleFonts.inter(
+                                        textStyle: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                RawMaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                  ),
+                                  fillColor: HexColor('#FF4747'),
+                                  onPressed: () async {
+                                    Navigator.of(context).maybePop();
+                                    await Future.delayed(
+                                        Duration(milliseconds: 100));
+                                    proceedPressed();
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20.0),
+                                    child: Text(
+                                      'Ha',
+                                      style: GoogleFonts.inter(
+                                        textStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -252,31 +398,62 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           return;
         }
 
-        //watch
+        //watch single
         if (state is MovieDetailLoadedState &&
             state.isUrlWatchLoaded &&
             state.singleMovieURL != null) {
-          Navigator.of(context)
-              .pushNamed(VideoPlayerPageSingle.routeName, arguments: {
-            'url': state.singleMovieURL,
-            'movie_name': state.movie.name,
-            'image': state.movie.poster,
-            'movieID': state.movie.id,
-            'profile_id': state.movie.voice_mode,
-          });
+          if (state.movie.age != null && state.movie.age!.contains("18")) {
+            openWarningDialog(
+              context,
+              () {
+                Navigator.of(context)
+                    .pushNamed(VideoPlayerPageSingle.routeName, arguments: {
+                  'url': state.singleMovieURL,
+                  'movie_name': state.movie.name,
+                  'image': state.movie.poster,
+                  'movieID': state.movie.id,
+                  'profile_id': state.movie.voice_mode,
+                });
+              },
+            );
+          } else {
+            Navigator.of(context)
+                .pushNamed(VideoPlayerPageSingle.routeName, arguments: {
+              'url': state.singleMovieURL,
+              'movie_name': state.movie.name,
+              'image': state.movie.poster,
+              'movieID': state.movie.id,
+              'profile_id': state.movie.voice_mode,
+            });
+          }
           return;
         }
 
-        //watch
+        //watch multi
         if (state is MovieDetailLoadedState &&
             state.isUrlWatchLoaded &&
             state.seasons.isNotEmpty) {
-          Navigator.of(context).pushNamed(SeasonPage.routeName, arguments: {
-            'seasons': state.seasons,
-            'name': state.movie.name,
-            'image': state.movie.poster,
-            'profile_id': state.movie.voice_mode,
-          });
+          if (state.movie.age != null && state.movie.age!.contains("18")) {
+            openWarningDialog(
+              context,
+              () {
+                Navigator.of(context)
+                    .pushNamed(SeasonPage.routeName, arguments: {
+                  'seasons': state.seasons,
+                  'name': state.movie.name,
+                  'image': state.movie.poster,
+                  'profile_id': state.movie.voice_mode,
+                });
+              },
+            );
+          } else {
+            Navigator.of(context).pushNamed(SeasonPage.routeName, arguments: {
+              'seasons': state.seasons,
+              'name': state.movie.name,
+              'image': state.movie.poster,
+              'profile_id': state.movie.voice_mode,
+            });
+          }
           return;
         }
 
@@ -469,7 +646,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                         if (imageUrl != '')
                                           ClipRRect(
                                             child: Hero(
-                                              tag: imageUrl + "${content_id}",
+                                              tag: imageUrl +
+                                                  "${content_id}" +
+                                                  "${type ?? "main"}",
                                               child: CustomImageLoader(
                                                 imageUrl: imageUrl,
                                                 width: 150,
@@ -1338,7 +1517,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                           children: [
                                             ClipRRect(
                                               child: Hero(
-                                                tag: imageUrl + "${content_id}",
+                                                tag: imageUrl +
+                                                    "${content_id}" +
+                                                    "${type ?? "main"}",
                                                 child: CustomImageLoader(
                                                   imageUrl: state.movie.poster,
                                                   width: 150,
@@ -1963,7 +2144,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                                 state.movie.age.toString(),
                                                 style: GoogleFonts.openSans(
                                                   textStyle: TextStyle(
-                                                    color: Colors.white,
+                                                    color: (state.movie.age !=
+                                                                null &&
+                                                            state.movie.age!
+                                                                .contains('18'))
+                                                        ? Colors.red
+                                                        : Colors.white,
                                                     fontWeight: FontWeight.w700,
                                                     fontSize: 11,
                                                   ),
