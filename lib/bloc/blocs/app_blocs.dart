@@ -384,12 +384,12 @@ class TestTokenBloc extends Bloc<TestEvent, TestState> {
         //detect emulator or course
 
         //uncomment this
-        String? number = await SecureStorage().getNumber();
-        bool isEmulator = await DetectEmulator().isDeviceEmulator();
-        if (number == '112223344' || isEmulator) {
-          emit(TestTokenDoneState(authState: AuthState.Courses));
-          return;
-        }
+        // String? number = await SecureStorage().getNumber();
+        // bool isEmulator = await DetectEmulator().isDeviceEmulator();
+        // if (number == '112223344' || isEmulator) {
+        //   emit(TestTokenDoneState(authState: AuthState.Courses));
+        //   return;
+        // }
 
         //final state
         emit(TestTokenDoneState(authState: AuthState.Successful));
@@ -547,17 +547,17 @@ class CategoryDetailBloc
       category_id = event.category_id;
       try {
         //uncomment this
-        if (Platform.isAndroid) {
-          bool isEmulator = await DetectEmulator().isDeviceEmulator();
-          bool isTestNumber = await SecureStorage().getNumber() == '112223344';
-          if (isTestNumber) {
-            category_id = 11;
-          }
-
-          if (!isTestNumber && isEmulator) {
-            category_id = 1000;
-          }
-        }
+        // if (Platform.isAndroid) {
+        //   bool isEmulator = await DetectEmulator().isDeviceEmulator();
+        //   bool isTestNumber = await SecureStorage().getNumber() == '112223344';
+        //   if (isTestNumber) {
+        //     category_id = 11;
+        //   }
+        //
+        //   if (!isTestNumber && isEmulator) {
+        //     category_id = 1000;
+        //   }
+        // }
 
         emit(CategoryDetailLoadingState());
         category_movies = [];
@@ -1716,6 +1716,8 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
         'is_multi': event.is_multi,
       };
 
+      var cacheDirectory = await getTemporaryDirectory();
+
       final task = DownloadTask(
         url: event.url,
         filename: event.url.substring(event.url.lastIndexOf("/") + 1),
@@ -1723,9 +1725,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
         requiresWiFi: false,
         retries: 10,
         displayName: event.displayName,
-        baseDirectory: Platform.isAndroid
-            ? BaseDirectory.temporary
-            : BaseDirectory.applicationLibrary,
+        directory: cacheDirectory.path,
         allowPause: true,
         metaData: jsonEncode(meta_data_map),
       );
