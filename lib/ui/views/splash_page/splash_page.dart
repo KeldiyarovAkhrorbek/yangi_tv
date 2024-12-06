@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:blur/blur.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,12 +9,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:in_app_update/in_app_update.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/helpers/auth_state.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:yangi_tv_new/helpers/constants.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 import 'package:yangi_tv_new/ui/views/courses/courses_page.dart';
 import 'package:yangi_tv_new/ui/views/landing/landing_page.dart';
 import 'package:yangi_tv_new/ui/views/navigation/navigation_page.dart';
@@ -32,8 +35,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // checkForUpdate();
-    BlocProvider.of<DownloadBloc>(context)..add(LoadAllDownloadTasksEvent());
+    // getIt<DownloadBloc>().add(LoadAllDownloadTasksEvent());
   }
 
   void openUpdateDialog(VoidCallback updatePressed, BuildContext context) {
@@ -645,8 +647,7 @@ class _SplashPageState extends State<SplashPage> {
                 }
               }, context);
               return;
-            }
-            if (state.authState == AuthState.Rooted) {
+            } else if (state.authState == AuthState.Rooted) {
               openRootDialog();
               return;
             } else if (state.authState == AuthState.PC) {

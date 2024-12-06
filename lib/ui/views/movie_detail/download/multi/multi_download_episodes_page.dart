@@ -14,6 +14,7 @@ import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/helpers/decryptor.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 
 import '../../../../../bloc/blocs/app_events.dart';
 import '../../../../../bloc/repos/mainrepository.dart';
@@ -42,15 +43,16 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['name'];
     image = args['image'];
     season = args['season'];
     episodes = args['episodes'];
     tariff = args['tariff'];
     timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (mounted)
-        BlocProvider.of<DownloadBloc>(context)..add(UpdateDownloadsEvent());
+      if (mounted) {
+        getIt<DownloadBloc>().add(UpdateDownloadsEvent());
+      }
     });
   }
 
@@ -141,7 +143,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -162,14 +164,14 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       PauseTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -279,7 +281,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -300,14 +302,14 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       DeleteTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -427,7 +429,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Tushunarli',
                                       style: GoogleFonts.inter(
@@ -706,23 +708,22 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                     borderRadius: BorderRadius.circular(5),
                                     onTap: () {
                                       if (episode.file != null)
-                                        BlocProvider.of<DownloadBloc>(context)
-                                          ..add(
-                                            AddDownloadEvent(
-                                              movie_name: movie_name,
-                                              name: episode.name,
-                                              displayName: movie_name +
-                                                  " " +
-                                                  season +
-                                                  " " +
-                                                  episode.name,
-                                              image: image,
-                                              url: decryptArray(episode.file!),
-                                              seasonName: season,
-                                              is_multi: true,
-                                              tariff: tariff,
-                                            ),
-                                          );
+                                        getIt<DownloadBloc>().add(
+                                          AddDownloadEvent(
+                                            movie_name: movie_name,
+                                            name: episode.name,
+                                            displayName: movie_name +
+                                                " " +
+                                                season +
+                                                " " +
+                                                episode.name,
+                                            image: image,
+                                            url: decryptArray(episode.file!),
+                                            seasonName: season,
+                                            is_multi: true,
+                                            tariff: tariff,
+                                          ),
+                                        );
                                     },
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
@@ -730,7 +731,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/profile/ic_download.svg',
@@ -798,7 +799,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           "Pauza qilingan",
@@ -892,7 +893,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           "Qoldi: ${prettyDuration(Duration(seconds: state.tasks[indexTask].remainingTime))}",
@@ -986,23 +987,23 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                       var tariffExists = false;
                                       try {
                                         var activeTariffs =
-                                        await MainRepository()
-                                            .getActiveTariffs();
+                                            await MainRepository()
+                                                .getActiveTariffs();
                                         var profile =
-                                        await MainRepository().getProfile();
+                                            await MainRepository().getProfile();
                                         setState(() {
                                           isTariffLoading = false;
                                         });
                                         if (state.tasks[indexTask].tariff
-                                            .toUpperCase() ==
+                                                .toUpperCase() ==
                                             'BEPUL') tariffExists = true;
 
                                         activeTariffs.forEach((tariff) {
                                           if (tariff.name ==
-                                              state.tasks[indexTask]
-                                                  .tariff ||
+                                                  state.tasks[indexTask]
+                                                      .tariff ||
                                               state.tasks[indexTask].tariff
-                                                  .toUpperCase() ==
+                                                      .toUpperCase() ==
                                                   'BEPUL') {
                                             tariffExists = true;
                                           }
@@ -1020,7 +1021,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
 
                                         //proceed to watch
                                         File file =
-                                        File(state.tasks[indexTask].path);
+                                            File(state.tasks[indexTask].path);
                                         bool exists = await file.exists();
                                         if (exists)
                                           Navigator.of(context).pushNamed(
@@ -1054,7 +1055,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/download/ic_play.svg',
@@ -1211,7 +1212,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                     height: 40,
                     child: IconButton(
                       onPressed: () {
-                        BlocProvider.of<DownloadBloc>(context)
+                        getIt<DownloadBloc>()
                           ..add(ResumeTaskEvent(state.tasks[indexTask].taskId));
                       },
                       icon: SvgPicture.asset(

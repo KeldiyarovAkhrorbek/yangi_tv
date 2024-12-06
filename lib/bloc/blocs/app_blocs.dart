@@ -1,23 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:background_downloader/background_downloader.dart';
 import 'package:cast/device.dart';
 import 'package:cast/discovery_service.dart';
-import 'package:device_apps/device_apps.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_radio_version_plugin/get_radio_version_plugin.dart';
+import 'package:installed_apps/installed_apps.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:safe_device/safe_device.dart';
 import 'package:yangi_tv_new/database/story_db.dart';
 import 'package:yangi_tv_new/helpers/auth_state.dart';
 import 'package:yangi_tv_new/helpers/detect_emulator.dart';
-import 'package:yangi_tv_new/helpers/first_time_tracker.dart';
 import 'package:yangi_tv_new/helpers/secure_storage.dart';
 import 'package:yangi_tv_new/models/category.dart';
 import 'package:yangi_tv_new/models/collection_model.dart';
@@ -28,7 +26,6 @@ import 'package:yangi_tv_new/models/search.dart';
 import 'package:yangi_tv_new/models/session.dart';
 
 import '../../models/Movie_Short.dart';
-import '../../models/active_tariff.dart';
 import '../../models/banner.dart';
 import '../../models/db/database_task.dart';
 import '../../models/movie_full.dart';
@@ -314,6 +311,7 @@ class TestTokenBloc extends Bloc<TestEvent, TestState> {
       "com.uncube.launcher1": "Torque Launcher",
       "com.uncube.launcher": "Torque Launcher",
       "com.android.ld.appstore": "LD Player",
+      "com.topjohnwu.magisk": "Magisk",
     };
 
     on<TestTokenEvent>((event, emit) async {
@@ -333,16 +331,16 @@ class TestTokenBloc extends Bloc<TestEvent, TestState> {
 
         //check dangerous android
         if (Platform.isAndroid) {
-          List<Application> apps = await DeviceApps.getInstalledApplications();
-
-          //check dangerous apps
-          apps.forEach((app) {
-            if (dangerousApps.containsKey(app.packageName)) {
+          for (var dangerousPackage in dangerousApps.keys) {
+            bool? appIsInstalled =
+                await InstalledApps.isAppInstalled(dangerousPackage);
+            if (appIsInstalled == true) {
               isDangerous = true;
-              dangerousAppName = app.appName;
-              return;
+              dangerousAppName =
+                  dangerousApps[dangerousPackage] ?? 'Dangerous app';
+              break;
             }
-          });
+          }
         }
 
         if (isDangerous) {
@@ -377,19 +375,16 @@ class TestTokenBloc extends Bloc<TestEvent, TestState> {
           return;
         }
 
-        debugPrint(token);
-
-        var banner = await _mainRepository.getBanners();
+        var stories = await _mainRepository.getStories();
 
         //detect emulator or course
-
         //uncomment this
-        // String? number = await SecureStorage().getNumber();
-        // bool isEmulator = await DetectEmulator().isDeviceEmulator();
-        // if (number == '112223344' || isEmulator) {
-        //   emit(TestTokenDoneState(authState: AuthState.Courses));
-        //   return;
-        // }
+        String? number = await SecureStorage().getNumber();
+        bool isEmulator = await DetectEmulator().isDeviceEmulator();
+        if (number == '112223344' || isEmulator) {
+          emit(TestTokenDoneState(authState: AuthState.Courses));
+          return;
+        }
 
         //final state
         emit(TestTokenDoneState(authState: AuthState.Successful));
@@ -547,17 +542,17 @@ class CategoryDetailBloc
       category_id = event.category_id;
       try {
         //uncomment this
-        // if (Platform.isAndroid) {
-        //   bool isEmulator = await DetectEmulator().isDeviceEmulator();
-        //   bool isTestNumber = await SecureStorage().getNumber() == '112223344';
-        //   if (isTestNumber) {
-        //     category_id = 11;
-        //   }
-        //
-        //   if (!isTestNumber && isEmulator) {
-        //     category_id = 1000;
-        //   }
-        // }
+        if (Platform.isAndroid) {
+          bool isEmulator = await DetectEmulator().isDeviceEmulator();
+          bool isTestNumber = await SecureStorage().getNumber() == '112223344';
+          if (isTestNumber) {
+            category_id = 11;
+          }
+
+          if (!isTestNumber && isEmulator) {
+            category_id = 1000;
+          }
+        }
 
         emit(CategoryDetailLoadingState());
         category_movies = [];
@@ -1611,44 +1606,9 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
             ));
           }
         });
-        time = DateTime.now();
-        emit(DownloadSuccessState(
-          tasks: all_tasks,
-          time: time,
-        ));
 
         if (subscription == null)
           subscription = FileDownloader().updates.listen((update) async {
-            var records = await FileDownloader().database.allRecords();
-            records.forEach((record) async {
-              Map<String, dynamic> meta_data = jsonDecode(record.task.metaData);
-              if (record.status != TaskStatus.canceled) {
-                var index = -1;
-                index = all_tasks
-                    .indexWhere((element) => element.url == record.task.url);
-                if (index == -1) {
-                  String filePath = await record.task.filePath();
-                  all_tasks.add(DatabaseTask(
-                    taskId: record.task.taskId,
-                    movieName: meta_data['movie_name'],
-                    name: meta_data['name'],
-                    displayName: record.task.displayName,
-                    url: record.task.url,
-                    size: meta_data['size'],
-                    tariff: meta_data['tariff'],
-                    image: meta_data['image'],
-                    networkSpeed: 0,
-                    progress: record.progress,
-                    status: record.status,
-                    remainingTime: 0,
-                    is_multi: meta_data['is_multi'],
-                    seasonName: meta_data['season_name'],
-                    path: filePath,
-                  ));
-                }
-              }
-            });
-
             switch (update) {
               case TaskStatusUpdate():
                 {
@@ -1659,6 +1619,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
                     return;
                   }
                   all_tasks[index].status = update.status;
+                  all_tasks[index].path = await update.task.filePath();
                   if (update.status == TaskStatus.canceled ||
                       update.status == TaskStatus.notFound ||
                       update.status == TaskStatus.failed) {
@@ -1731,6 +1692,24 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
       );
 
       final result = await FileDownloader().enqueue(task);
+      if (result)
+        all_tasks.add(DatabaseTask(
+          taskId: task.taskId,
+          movieName: meta_data_map['movie_name'],
+          name: meta_data_map['name'],
+          displayName: task.displayName,
+          url: task.url,
+          size: 0,
+          tariff: event.tariff,
+          image: event.image,
+          networkSpeed: 0,
+          progress: 0,
+          status: TaskStatus.enqueued,
+          remainingTime: 0,
+          is_multi: event.is_multi,
+          seasonName: event.seasonName,
+          path: '',
+        ));
     });
 
     on<UpdateDownloadsEvent>((event, emit) async {
@@ -1796,6 +1775,7 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
           await FileDownloader().database.recordForId(event.taskId);
       if (taskRecord == null) return;
       if (taskRecord.status == TaskStatus.complete) {
+        all_tasks.removeWhere((element) => element.taskId == event.taskId);
         await FileDownloader().database.deleteRecordWithId(event.taskId);
         File file = File(
           directory.path +
@@ -1806,10 +1786,9 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
         );
         var exists = await file.exists();
         if (exists) await file.delete();
-        all_tasks.removeWhere((element) => element.taskId == event.taskId);
       } else {
-        await FileDownloader().cancelTaskWithId(event.taskId);
         all_tasks.removeWhere((element) => element.taskId == event.taskId);
+        await FileDownloader().cancelTaskWithId(event.taskId);
       }
     });
   }

@@ -108,7 +108,7 @@ class _CoursesPageState extends State<CoursesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Try again',
                                       style: GoogleFonts.inter(
@@ -142,13 +142,13 @@ class _CoursesPageState extends State<CoursesPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-      CategoryDetailBloc(RepositoryProvider.of<MainRepository>(context))
-        ..add(GetCategoryDetailEvent(category_id: 11)),
+          CategoryDetailBloc(RepositoryProvider.of<MainRepository>(context))
+            ..add(GetCategoryDetailEvent(category_id: 11)),
       child: BlocConsumer<CategoryDetailBloc, CategoryDetailState>(
         listener: (context, state) {
           if (state is CategoryDetailErrorState) {
             openTryAgainDialog(
-                  () {
+              () {
                 BlocProvider.of<CategoryDetailBloc>(context)
                   ..add(GetCategoryDetailEvent(category_id: 11));
               },
@@ -178,7 +178,7 @@ class _CoursesPageState extends State<CoursesPage> {
             body: Builder(
               builder: (_) {
                 scrollController.addListener(
-                      () async {
+                  () async {
                     if (state is CategoryDetailSuccessState &&
                         !state.isPaginating) {
                       if (scrollController.position.pixels ==
@@ -217,7 +217,7 @@ class _CoursesPageState extends State<CoursesPage> {
                             physics: PageScrollPhysics(),
                             shrinkWrap: true,
                             gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                                SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
                               mainAxisExtent: 200,
                               crossAxisSpacing: 10,

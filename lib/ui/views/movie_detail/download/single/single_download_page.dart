@@ -16,6 +16,7 @@ import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:yangi_tv_new/helpers/decryptor.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 import 'package:yangi_tv_new/models/single_movie_url.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/watch/offline/video_player_page_offline.dart';
 
@@ -41,14 +42,13 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['movie_name'];
     image = args['image'];
     tariff = args['tariff'];
     singleMovieUrl = args['singleMovieUrl'];
     timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (mounted)
-        BlocProvider.of<DownloadBloc>(context)..add(UpdateDownloadsEvent());
+      if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
     });
   }
 
@@ -139,7 +139,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -160,14 +160,14 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       PauseTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -277,7 +277,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -298,14 +298,14 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       DeleteTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -425,7 +425,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Tushunarli',
                                       style: GoogleFonts.inter(
@@ -465,7 +465,9 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
       setState(() {});
     });
     return BlocConsumer<DownloadBloc, DownloadState>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        debugPrint(state.toString());
+      },
       builder: (context, state) {
         if (state is DownloadSuccessState) {
           return SafeArea(
@@ -724,27 +726,26 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(5),
                                     onTap: () {
-                                      BlocProvider.of<DownloadBloc>(context)
-                                        ..add(
-                                          AddDownloadEvent(
-                                            movie_name: movie_name,
-                                            name: qualityText,
-                                            displayName:
-                                            movie_name + " " + qualityText,
-                                            image: image,
-                                            url: url,
-                                            seasonName: null,
-                                            is_multi: false,
-                                            tariff: tariff,
-                                          ),
-                                        );
+                                      getIt<DownloadBloc>().add(
+                                        AddDownloadEvent(
+                                          movie_name: movie_name,
+                                          name: qualityText,
+                                          displayName:
+                                              movie_name + " " + qualityText,
+                                          image: image,
+                                          url: url,
+                                          seasonName: null,
+                                          is_multi: false,
+                                          tariff: tariff,
+                                        ),
+                                      );
                                     },
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
                                           vertical: 5, horizontal: 10),
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/profile/ic_download.svg',
@@ -992,23 +993,23 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                       var tariffExists = false;
                                       try {
                                         var activeTariffs =
-                                        await MainRepository()
-                                            .getActiveTariffs();
+                                            await MainRepository()
+                                                .getActiveTariffs();
                                         var profile =
-                                        await MainRepository().getProfile();
+                                            await MainRepository().getProfile();
                                         setState(() {
                                           isTariffLoading = false;
                                         });
                                         if (state.tasks[indexTask].tariff
-                                            .toUpperCase() ==
+                                                .toUpperCase() ==
                                             'BEPUL') tariffExists = true;
 
                                         activeTariffs.forEach((tariff) {
                                           if (tariff.name ==
-                                              state.tasks[indexTask]
-                                                  .tariff ||
+                                                  state.tasks[indexTask]
+                                                      .tariff ||
                                               state.tasks[indexTask].tariff
-                                                  .toUpperCase() ==
+                                                      .toUpperCase() ==
                                                   'BEPUL') {
                                             tariffExists = true;
                                           }
@@ -1025,7 +1026,8 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                         }
 
                                         //proceed to watch
-                                        File file = File(state.tasks[indexTask].path);
+                                        File file =
+                                            File(state.tasks[indexTask].path);
                                         bool exists = await file.exists();
                                         if (exists)
                                           Navigator.of(context).pushNamed(
@@ -1059,7 +1061,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/download/ic_play.svg',
@@ -1216,8 +1218,8 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                     height: 40,
                     child: IconButton(
                       onPressed: () {
-                        BlocProvider.of<DownloadBloc>(context)
-                          ..add(ResumeTaskEvent(state.tasks[indexTask].taskId));
+                        getIt<DownloadBloc>().add(
+                            ResumeTaskEvent(state.tasks[indexTask].taskId));
                       },
                       icon: SvgPicture.asset(
                         'assets/icons/download/ic_play.svg',

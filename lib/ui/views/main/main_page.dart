@@ -120,7 +120,7 @@ class _MainPageState extends State<MainPage>
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Qayta urinish',
                                       style: GoogleFonts.inter(
@@ -154,13 +154,20 @@ class _MainPageState extends State<MainPage>
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-      MainBloc(RepositoryProvider.of<MainRepository>(context))
-        ..add(GetMainEvent()),
+          MainBloc(RepositoryProvider.of<MainRepository>(context))
+            ..add(GetMainEvent()),
       child: BlocConsumer<MainBloc, MainState>(listener: (context, state) {
-        if (state is MainErrorState)
+        if (state is MainErrorState) {
           openTryAgainDialog(() {
             BlocProvider.of<MainBloc>(context)..add(GetMainEvent());
           });
+        }
+
+        if (state is MainLoadingState) {
+          setState(() {
+            activeBannerIndex = 0;
+          });
+        }
       }, builder: (context, state) {
         return RefreshIndicator(
           color: Colors.black,
@@ -216,7 +223,7 @@ class _MainPageState extends State<MainPage>
                               child: Shimmer.fromColors(
                                 baseColor: Constants.defaultShimmerBaseColor,
                                 highlightColor:
-                                Constants.defaultShimmerHighlightColor,
+                                    Constants.defaultShimmerHighlightColor,
                                 child: Container(
                                   width: 65,
                                   height: 65,
@@ -235,7 +242,7 @@ class _MainPageState extends State<MainPage>
                         Shimmer.fromColors(
                           baseColor: Constants.defaultShimmerBaseColor,
                           highlightColor:
-                          Constants.defaultShimmerHighlightColor,
+                              Constants.defaultShimmerHighlightColor,
                           child: Container(
                             width: double.infinity,
                             height: 245,
@@ -253,7 +260,7 @@ class _MainPageState extends State<MainPage>
                             enabled: true,
                             baseColor: Constants.defaultShimmerBaseColor,
                             highlightColor:
-                            Constants.defaultShimmerHighlightColor,
+                                Constants.defaultShimmerHighlightColor,
                             child: Container(
                               width: 100,
                               height: 20,
@@ -278,7 +285,7 @@ class _MainPageState extends State<MainPage>
                                 child: Shimmer.fromColors(
                                   baseColor: Constants.defaultShimmerBaseColor,
                                   highlightColor:
-                                  Constants.defaultShimmerHighlightColor,
+                                      Constants.defaultShimmerHighlightColor,
                                   child: Container(
                                     width: 120,
                                     height: 120,
@@ -306,11 +313,11 @@ class _MainPageState extends State<MainPage>
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Shimmer.fromColors(
                                       baseColor:
-                                      Constants.defaultShimmerBaseColor,
+                                          Constants.defaultShimmerBaseColor,
                                       highlightColor: Constants
                                           .defaultShimmerHighlightColor,
                                       child: Container(
@@ -323,7 +330,7 @@ class _MainPageState extends State<MainPage>
                                     ),
                                     Shimmer.fromColors(
                                       baseColor:
-                                      Constants.defaultShimmerBaseColor,
+                                          Constants.defaultShimmerBaseColor,
                                       highlightColor: Constants
                                           .defaultShimmerHighlightColor,
                                       child: Container(
@@ -346,8 +353,8 @@ class _MainPageState extends State<MainPage>
                                         MovieItemLoading(),
                                     separatorBuilder: (context, index) =>
                                         SizedBox(
-                                          width: 10,
-                                        ),
+                                      width: 10,
+                                    ),
                                     itemCount: 10,
                                     physics: NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
@@ -387,7 +394,7 @@ class _MainPageState extends State<MainPage>
                               itemBuilder: (context, index) {
                                 return Container(
                                   margin:
-                                  EdgeInsets.only(left: index == 0 ? 5 : 0),
+                                      EdgeInsets.only(left: index == 0 ? 5 : 0),
                                   child: StoryItem(state.stories[index], () {
                                     Navigator.of(context).pushNamed(
                                         StoryWatchPage.routeName,
@@ -441,9 +448,9 @@ class _MainPageState extends State<MainPage>
                                         MovieDetailPage.routeName,
                                         arguments: {
                                           'content_id':
-                                          state.banners[index].contentId,
+                                              state.banners[index].contentId,
                                           'movie_name':
-                                          state.banners[index].name,
+                                              state.banners[index].name,
                                         },
                                       );
 
@@ -485,12 +492,12 @@ class _MainPageState extends State<MainPage>
                                                   textAlign: TextAlign.center,
                                                   maxLines: 1,
                                                   overflow:
-                                                  TextOverflow.ellipsis,
+                                                      TextOverflow.ellipsis,
                                                   style: GoogleFonts.roboto(
                                                     textStyle: TextStyle(
                                                       color: Colors.white,
                                                       fontWeight:
-                                                      FontWeight.w400,
+                                                          FontWeight.w400,
                                                       fontSize: 14,
                                                     ),
                                                   ),

@@ -14,6 +14,7 @@ import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/bloc/repos/mainrepository.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 
 import '../../../../../bloc/blocs/app_events.dart';
 import '../../../../../helpers/color_changer.dart';
@@ -39,12 +40,11 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['name'];
     image = args['image'];
     timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (mounted)
-        BlocProvider.of<DownloadBloc>(context)..add(UpdateDownloadsEvent());
+      if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
     });
   }
 
@@ -135,7 +135,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -156,14 +156,14 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       PauseTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -273,7 +273,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Bekor qilish',
                                       style: GoogleFonts.inter(
@@ -294,14 +294,14 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       DeleteTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Ha, albatta!',
                                       style: GoogleFonts.inter(
@@ -415,7 +415,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                   },
                                   child: Padding(
                                     padding:
-                                    EdgeInsets.symmetric(horizontal: 20.0),
+                                        EdgeInsets.symmetric(horizontal: 20.0),
                                     child: Text(
                                       'Tushunarli',
                                       style: GoogleFonts.inter(
@@ -460,6 +460,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
       setState(() {});
     });
     return BlocConsumer<DownloadBloc, DownloadState>(
+      bloc: getIt<DownloadBloc>(),
       listener: (context, state) {},
       builder: (context, state) {
         if (state is DownloadSuccessState) {
@@ -904,10 +905,10 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                       var tariffExists = false;
                                       try {
                                         var activeTariffs =
-                                        await MainRepository()
-                                            .getActiveTariffs();
+                                            await MainRepository()
+                                                .getActiveTariffs();
                                         var profile =
-                                        await MainRepository().getProfile();
+                                            await MainRepository().getProfile();
                                         setState(() {
                                           isTariffLoading = false;
                                         });
@@ -964,7 +965,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           SvgPicture.asset(
                                             'assets/icons/download/ic_play.svg',
@@ -1122,8 +1123,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                     height: 40,
                     child: IconButton(
                       onPressed: () {
-                        BlocProvider.of<DownloadBloc>(context)
-                          ..add(ResumeTaskEvent(task.taskId));
+                        getIt<DownloadBloc>().add(ResumeTaskEvent(task.taskId));
                       },
                       icon: SvgPicture.asset(
                         'assets/icons/download/ic_play.svg',

@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 
 import '../../../../../bloc/blocs/app_events.dart';
 import '../../../../../bloc/repos/mainrepository.dart';
@@ -47,7 +47,7 @@ class _DownloadedSeasonEpisodesPageState
     seasonName = args['season'];
     timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
       if (mounted)
-        BlocProvider.of<DownloadBloc>(context)..add(UpdateDownloadsEvent());
+        getIt<DownloadBloc>().add(UpdateDownloadsEvent());
     });
   }
 
@@ -159,7 +159,7 @@ class _DownloadedSeasonEpisodesPageState
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       PauseTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
@@ -297,7 +297,7 @@ class _DownloadedSeasonEpisodesPageState
                                   ),
                                   fillColor: HexColor('#FF4747'),
                                   onPressed: () {
-                                    BlocProvider.of<DownloadBloc>(context).add(
+                                    getIt<DownloadBloc>().add(
                                       DeleteTaskEvent(taskId),
                                     );
                                     Navigator.of(context).maybePop();
@@ -934,7 +934,7 @@ class _DownloadedSeasonEpisodesPageState
                                               });
                                           return;
                                         }
-
+                                        debugPrint(episode.path);
                                         //proceed to watch
                                         File file = File(episode.path);
                                         bool exists = await file.exists();
@@ -1122,8 +1122,7 @@ class _DownloadedSeasonEpisodesPageState
                     height: 40,
                     child: IconButton(
                       onPressed: () {
-                        BlocProvider.of<DownloadBloc>(context)
-                          ..add(ResumeTaskEvent(episode.taskId));
+                        getIt<DownloadBloc>().add(ResumeTaskEvent(episode.taskId));
                       },
                       icon: SvgPicture.asset(
                         'assets/icons/download/ic_play.svg',

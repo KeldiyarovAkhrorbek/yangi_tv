@@ -7,16 +7,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sms_autofill/sms_autofill.dart';
+import 'package:yangi_tv_new/bloc/blocs/app_events.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
-import 'package:yangi_tv_new/helpers/secure_storage.dart';
 import 'package:yangi_tv_new/ui/views/auth/change_username_page.dart';
 import 'package:yangi_tv_new/ui/views/auth/phone_number_page.dart';
 import 'package:yangi_tv_new/ui/views/auth/session_delete_page.dart';
@@ -43,7 +40,6 @@ import 'package:yangi_tv_new/ui/views/profile/downloads/multi/downloaded_seasons
 import 'package:yangi_tv_new/ui/views/profile/downloads/single/downloaded_qualities_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/fill_balance/fill_balance_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/orders/orders_page.dart';
-import 'package:yangi_tv_new/ui/views/profile/orders/orders_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/payment_history/payment_history_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/session/session_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/tariffs_page/tariffs_page.dart';
@@ -53,6 +49,7 @@ import 'package:yangi_tv_new/ui/views/story/story_watch_page.dart';
 import 'bloc/blocs/app_blocs.dart';
 import 'bloc/repos/mainrepository.dart';
 import 'firebase_options.dart';
+import 'injection_container.dart';
 import 'ui/views/movie_detail/watch/multi/seasons_page.dart';
 import 'ui/views/movie_detail/watch/multi/video_player_page_multi.dart';
 import 'ui/views/movie_detail/watch/single/video_player_page_single.dart';
@@ -66,7 +63,6 @@ bool isNotificationInit = false;
 late String token;
 late String initialMessage;
 late String message;
-late bool _resolved;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,7 +88,6 @@ Future<void> main() async {
     sound: true,
   );
   await FirebaseMessaging.instance.setAutoInitEnabled(true);
-
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -105,6 +100,7 @@ Future<void> main() async {
   // }
 
   await FileDownloader().trackTasks();
+
   FileDownloader().configureNotification(
     running: TaskNotification('Yuklanmoqda...', '{displayName}'),
     complete: TaskNotification("Yuklab bo'lindi...", '{displayName}'),
@@ -117,6 +113,9 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  setup();
+
   runApp(const MyApp());
 }
 
@@ -181,9 +180,6 @@ class MyApp extends StatelessWidget {
         BlocProvider<CommentBloc>(
           create: (context) => CommentBloc(MainRepository()),
         ),
-        BlocProvider<DownloadBloc>(
-          create: (context) => DownloadBloc(MainRepository()),
-        ),
         BlocProvider<CollectionBloc>(
           create: (context) => CollectionBloc(MainRepository()),
         ),
@@ -196,6 +192,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<OrdersBloc>(
           create: (context) => OrdersBloc(MainRepository()),
         ),
+        BlocProvider<DownloadBloc>(
+          create: (context) => getIt<DownloadBloc>(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -206,7 +205,8 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return MediaQuery(
             child: child!,
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(1.0)),
           );
         },
         home: RepositoryProvider(
@@ -362,46 +362,29 @@ class MyApp extends StatelessWidget {
                   settings: settings);
             case SingleDownloadPage.routeName:
               return CupertinoPageRoute(
-                  builder: (_) => RepositoryProvider(
-                      create: (context) => MainRepository(),
-                      child: SingleDownloadPage()),
-                  settings: settings);
+                  builder: (_) => SingleDownloadPage(), settings: settings);
             case MultiDownloadSeasonPage.routeName:
               return CupertinoPageRoute(
-                  builder: (_) => RepositoryProvider(
-                      create: (context) => MainRepository(),
-                      child: MultiDownloadSeasonPage()),
+                  builder: (_) => MultiDownloadSeasonPage(),
                   settings: settings);
             case MultiDownloadEpisodesPage.routeName:
               return CupertinoPageRoute(
                   barrierDismissible: false,
-                  builder: (_) => RepositoryProvider(
-                      create: (context) => MainRepository(),
-                      child: MultiDownloadEpisodesPage()),
+                  builder: (_) => MultiDownloadEpisodesPage(),
                   settings: settings);
             case DownloadsPage.routeName:
               return CupertinoPageRoute(
-                  builder: (_) => RepositoryProvider(
-                      create: (context) => MainRepository(),
-                      child: DownloadsPage()),
-                  settings: settings);
+                  builder: (_) => DownloadsPage(), settings: settings);
             case DownloadedQualitiesPage.routeName:
               return CupertinoPageRoute(
-                  builder: (_) => RepositoryProvider(
-                      create: (context) => MainRepository(),
-                      child: DownloadedQualitiesPage()),
+                  builder: (_) => DownloadedQualitiesPage(),
                   settings: settings);
             case DownloadedSeasonsPage.routeName:
               return CupertinoPageRoute(
-                  builder: (_) => RepositoryProvider(
-                      create: (context) => MainRepository(),
-                      child: DownloadedSeasonsPage()),
-                  settings: settings);
+                  builder: (_) => DownloadedSeasonsPage(), settings: settings);
             case DownloadedSeasonEpisodesPage.routeName:
               return CupertinoPageRoute(
-                  builder: (_) => RepositoryProvider(
-                      create: (context) => MainRepository(),
-                      child: DownloadedSeasonEpisodesPage()),
+                  builder: (_) => DownloadedSeasonEpisodesPage(),
                   settings: settings);
             case CollectionDetailPage.routeName:
               return CupertinoPageRoute(
@@ -417,6 +400,12 @@ class MyApp extends StatelessWidget {
                   settings: settings);
 
             case OrdersPage.routeName:
+              return CupertinoPageRoute(
+                  builder: (_) => RepositoryProvider(
+                      create: (context) => MainRepository(),
+                      child: OrdersPage()),
+                  settings: settings);
+            default:
               return CupertinoPageRoute(
                   builder: (_) => RepositoryProvider(
                       create: (context) => MainRepository(),

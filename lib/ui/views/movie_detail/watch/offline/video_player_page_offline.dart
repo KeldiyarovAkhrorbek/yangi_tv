@@ -3,17 +3,13 @@ import 'dart:io';
 
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:blur/blur.dart';
-import 'package:cast/cast.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_prevent_screen_capture/flutter_prevent_screen_capture.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:keep_screen_on/keep_screen_on.dart';
 import 'package:video_player/video_player.dart';
-import 'package:yangi_tv_new/database/episode_db.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -55,6 +51,24 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
   FlutterPreventScreenCapture preventScreenCapture =
       FlutterPreventScreenCapture();
 
+  static const platform = MethodChannel('screen_protection');
+
+  void _enableSecure() async {
+    try {
+      await platform.invokeMethod('enableSecure');
+    } on PlatformException catch (e) {
+      // print("Failed to enable secure screen: ${e.message}");
+    }
+  }
+
+  void _disableSecure() async {
+    try {
+      await platform.invokeMethod('disableSecure');
+    } on PlatformException catch (e) {
+      // print("Failed to disable secure screen: ${e.message}");
+    }
+  }
+
   Future<void> checkScreenRecord() async {
     final recordStatus = await preventScreenCapture.checkScreenRecord();
     if (recordStatus == true) {
@@ -78,14 +92,6 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
     checkScreenRecord();
   }
 
-  void preventRecording() async {
-    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
-  void removePreventRecording() async {
-    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -95,11 +101,11 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
       DeviceOrientation.landscapeLeft,
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    if (Platform.isAndroid) {
-      preventRecording();
-    }
     if (Platform.isIOS) {
       checkScreenRecord();
+    }
+    if (Platform.isAndroid) {
+      _enableSecure();
     }
   }
 
@@ -127,10 +133,12 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
           });
       });
     _controller.addListener(() async {
-      if (mounted) setState(() {});
-      if (_controller.value.position.inSeconds % 600 == 0 &&
-          _controller.value.position.inSeconds >= 10) {
-        videoPlayerManager.play();
+      if (mounted) {
+        setState(() {});
+        if (_controller.value.position.inSeconds % 600 == 0 &&
+            _controller.value.position.inSeconds >= 10) {
+          videoPlayerManager.play();
+        }
       }
     });
   }
@@ -144,26 +152,6 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
     }
     videoPlayerManager = VideoPlayerManager(numbers);
     await videoPlayerManager.initialize();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (_timer != null) _timer!.cancel();
-    _timer = null;
-    _controller.pause();
-    _controller.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    KeepScreenOn.turnOff();
-    if (Platform.isAndroid) {
-      removePreventRecording();
-    }
-    videoPlayerManager.dispose();
   }
 
   void changeUItoNone() {
@@ -836,5 +824,25 @@ class _VideoPlayerPageOfflineState extends State<VideoPlayerPageOffline> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (_timer != null) _timer!.cancel();
+    _timer = null;
+    _controller.pause();
+    _controller.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    KeepScreenOn.turnOff();
+    videoPlayerManager.dispose();
+    if (Platform.isAndroid) {
+      _disableSecure();
+    }
   }
 }

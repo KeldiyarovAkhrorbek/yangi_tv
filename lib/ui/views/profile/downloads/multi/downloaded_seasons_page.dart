@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 
 import '../../../../../models/db/database_season.dart';
 import 'downloaded_season_episodes_page.dart';
@@ -28,7 +29,7 @@ class _DownloadedSeasonsPageState extends State<DownloadedSeasonsPage> {
     ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['name'];
     image = args['image'];
-    BlocProvider.of<DownloadBloc>(context).all_tasks.forEach((task) {
+    getIt<DownloadBloc>().all_tasks.forEach((task) {
       if (task.movieName == movie_name) {
         if (!seasons.contains(DatabaseSeason(
             movie_name: movie_name,

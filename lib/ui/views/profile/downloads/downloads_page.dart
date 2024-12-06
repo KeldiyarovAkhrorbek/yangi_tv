@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 import 'package:yangi_tv_new/ui/views/profile/downloads/multi/downloaded_seasons_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/downloads/single/downloaded_qualities_page.dart';
 
@@ -25,7 +26,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
   @override
   void initState() {
     super.initState();
-    var all_tasks = BlocProvider.of<DownloadBloc>(context).all_tasks;
+    var all_tasks = getIt<DownloadBloc>().all_tasks;
     all_tasks.forEach((task) {
       if (!movies.contains(DatabaseMovie(
           name: task.movieName, image: task.image, is_multi: task.is_multi))) {
@@ -51,7 +52,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
       child: RefreshIndicator(
         color: Colors.black,
         onRefresh: () async {
-          var all_tasks = BlocProvider.of<DownloadBloc>(context).all_tasks;
+          var all_tasks = getIt<DownloadBloc>().all_tasks;
           movies = [];
           all_tasks.forEach((task) {
             if (!movies.contains(DatabaseMovie(
@@ -199,7 +200,8 @@ class _DownloadsPageState extends State<DownloadsPage> {
                         GridView.builder(
                           shrinkWrap: true,
                           physics: PageScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             mainAxisSpacing: 10,
                             crossAxisSpacing: 5,

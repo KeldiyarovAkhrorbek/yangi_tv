@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_prevent_screen_capture/flutter_prevent_screen_capture.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:keep_screen_on/keep_screen_on.dart';
 import 'package:video_player/video_player.dart';
@@ -17,7 +16,6 @@ import 'package:yangi_tv_new/database/episode_db.dart';
 import 'package:yangi_tv_new/helpers/video_player_manager.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:yangi_tv_new/models/profile.dart';
 
 import '../../../../../bloc/blocs/app_blocs.dart';
 import '../../../../../bloc/blocs/app_events.dart';
@@ -63,7 +61,42 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
   int secondFadeOut = 8;
 
   FlutterPreventScreenCapture preventScreenCapture =
-  FlutterPreventScreenCapture();
+      FlutterPreventScreenCapture();
+
+  static const platform = MethodChannel('screen_protection');
+
+  void _enableSecure() async {
+    try {
+      await platform.invokeMethod('enableSecure');
+    } on PlatformException catch (e) {
+      // print("Failed to enable secure screen: ${e.message}");
+    }
+  }
+
+  void _disableSecure() async {
+    try {
+      await platform.invokeMethod('disableSecure');
+    } on PlatformException catch (e) {
+      // print("Failed to disable secure screen: ${e.message}");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    KeepScreenOn.turnOn();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    if (Platform.isIOS) {
+      checkScreenRecord();
+    }
+    if (Platform.isAndroid) {
+      _enableSecure();
+    }
+  }
 
   Future<void> checkScreenRecord() async {
     final recordStatus = await preventScreenCapture.checkScreenRecord();
@@ -88,14 +121,6 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
     checkScreenRecord();
   }
 
-  void preventRecording() async {
-    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
-  void removePreventRecording() async {
-    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
   VideoPlayerManager videoPlayerManager = VideoPlayerManager([]);
 
   void prepareAudio() async {
@@ -109,28 +134,11 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    KeepScreenOn.turnOn();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-    ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    if (Platform.isAndroid) {
-      preventRecording();
-    }
-    if (Platform.isIOS) {
-      checkScreenRecord();
-    }
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (videoUrl != '') return;
     final args =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['movie_name'];
     seasonAndEpisode = args['seasonAndEpisode'];
     videoUrl = args['videoUrl'];
@@ -157,7 +165,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
           .create(id: episodeID, time: _controller.value.position.inSeconds);
       if (mounted) setState(() {});
       if (profile_id != null) if (_controller.value.position.inSeconds % 600 ==
-          0 &&
+              0 &&
           _controller.value.position.inSeconds >= 10) {
         videoPlayerManager.play();
       }
@@ -166,26 +174,6 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
 
   void getVideoTime() async {
     lastDurationSeconds = await EpisodeDB().fetchWatchedEpisodeTime(episodeID);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (_timer != null) _timer!.cancel();
-    _timer = null;
-    _controller.pause();
-    _controller.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    KeepScreenOn.turnOff();
-    if (Platform.isAndroid) {
-      removePreventRecording();
-    }
-    videoPlayerManager.dispose();
   }
 
   void changeUItoNone() {
@@ -207,158 +195,158 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: WillPopScope(
-        onWillPop: () async {
-          if (uiState == UIState.BASIC) {
+          onWillPop: () async {
+            if (uiState == UIState.BASIC) {
+              if (mounted)
+                setState(() {
+                  uiState = UIState.NONE;
+                });
+              return false;
+            }
+
+            if (uiState == UIState.NONE) {
+              return true;
+            }
+
             if (mounted)
               setState(() {
-                uiState = UIState.NONE;
+                uiState = UIState.BASIC;
               });
+            changeUItoNone();
             return false;
-          }
-
-          if (uiState == UIState.NONE) {
-            return true;
-          }
-
-          if (mounted)
-            setState(() {
-              uiState = UIState.BASIC;
-            });
-          changeUItoNone();
-          return false;
-        },
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          child: InkWell(
-            splashFactory: NoSplash.splashFactory,
-            highlightColor: Colors.transparent,
-            onTap: () {
-              if (_timer != null) _timer!.cancel();
-
-              if (uiState == UIState.SPEED) {
-                setState(
-                      () {
-                    uiState = UIState.BASIC;
-                  },
-                );
-                changeUItoNone();
-                return;
-              }
-
-              if (uiState == UIState.LOCKED) {
-                _timer = Timer(Duration(seconds: secondFadeOut), () {
-                  if (uiState == UIState.LOCKED) {
-                    if (mounted)
-                      setState(
-                            () {
-                          uiState = UIState.LOCKED_INVISIBLE;
-                        },
-                      );
-                  }
-                });
-                return;
-              }
-
-              if (uiState == UIState.LOCKED_INVISIBLE) {
-                if (mounted)
-                  setState(() {
-                    uiState = UIState.LOCKED;
-                  });
-                _timer = Timer(Duration(seconds: secondFadeOut), () {
-                  if (uiState == UIState.LOCKED) {
-                    if (mounted)
-                      setState(
-                            () {
-                          uiState = UIState.LOCKED_INVISIBLE;
-                        },
-                      );
-                  }
-                });
-                return;
-              }
-
-              if (uiState == UIState.NONE) {
-                if (mounted)
-                  setState(() {
-                    uiState = UIState.BASIC;
-                  });
-                changeUItoNone();
-                return;
-              }
-              if (uiState == UIState.BASIC) {
+          },
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            child: InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {
                 if (_timer != null) _timer!.cancel();
-                if (mounted)
-                  setState(() {
-                    uiState = UIState.NONE;
+
+                if (uiState == UIState.SPEED) {
+                  setState(
+                    () {
+                      uiState = UIState.BASIC;
+                    },
+                  );
+                  changeUItoNone();
+                  return;
+                }
+
+                if (uiState == UIState.LOCKED) {
+                  _timer = Timer(Duration(seconds: secondFadeOut), () {
+                    if (uiState == UIState.LOCKED) {
+                      if (mounted)
+                        setState(
+                          () {
+                            uiState = UIState.LOCKED_INVISIBLE;
+                          },
+                        );
+                    }
                   });
-                return;
-              }
-            },
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Builder(
-                    builder: (_) {
-                      if (!_controller.value.isInitialized)
-                        return Visibility(
-                          visible: uiState == UIState.NONE,
-                          child: Container(
-                            color: Colors.black,
-                            child: Center(
-                              child: SizedBox(
-                                height: 50.0,
-                                width: 50.0,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
+                  return;
+                }
+
+                if (uiState == UIState.LOCKED_INVISIBLE) {
+                  if (mounted)
+                    setState(() {
+                      uiState = UIState.LOCKED;
+                    });
+                  _timer = Timer(Duration(seconds: secondFadeOut), () {
+                    if (uiState == UIState.LOCKED) {
+                      if (mounted)
+                        setState(
+                          () {
+                            uiState = UIState.LOCKED_INVISIBLE;
+                          },
+                        );
+                    }
+                  });
+                  return;
+                }
+
+                if (uiState == UIState.NONE) {
+                  if (mounted)
+                    setState(() {
+                      uiState = UIState.BASIC;
+                    });
+                  changeUItoNone();
+                  return;
+                }
+                if (uiState == UIState.BASIC) {
+                  if (_timer != null) _timer!.cancel();
+                  if (mounted)
+                    setState(() {
+                      uiState = UIState.NONE;
+                    });
+                  return;
+                }
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Builder(
+                      builder: (_) {
+                        if (!_controller.value.isInitialized)
+                          return Visibility(
+                            visible: uiState == UIState.NONE,
+                            child: Container(
+                              color: Colors.black,
+                              child: Center(
+                                child: SizedBox(
+                                  height: 50.0,
+                                  width: 50.0,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
+                          );
+
+                        return Center(
+                          child: Transform.scale(
+                            scale: scale,
+                            child: AspectRatio(
+                              aspectRatio: _controller.value.aspectRatio,
+                              child: VideoPlayer(_controller),
+                            ),
                           ),
                         );
-
-                      return Center(
-                        child: Transform.scale(
-                          scale: scale,
-                          child: AspectRatio(
-                            aspectRatio: _controller.value.aspectRatio,
-                            child: VideoPlayer(_controller),
-                          ),
-                        ),
-                      );
-                    },
+                      },
+                    ),
                   ),
-                ),
 
-                //basic
-                basicControls(),
+                  //basic
+                  basicControls(),
 
-                //locked
-                locked(),
+                  //locked
+                  locked(),
 
-                //speed
-                speed(),
+                  //speed
+                  speed(),
 
-                cast(context),
+                  cast(context),
 
-                //video recording
-                videoRecording(),
-              ],
+                  //video recording
+                  videoRecording(),
+                ],
+              ),
             ),
           ),
         ),
-      ),
     );
   }
 
   Widget basicControls() {
     return Visibility(
       visible: (uiState == UIState.BASIC ||
-          (_controller.value.isInitialized &&
-              !_controller.value.isBuffering &&
-              !_controller.value.isPlaying)) &&
+              (_controller.value.isInitialized &&
+                  !_controller.value.isBuffering &&
+                  !_controller.value.isPlaying)) &&
           uiState != UIState.LOCKED_INVISIBLE &&
           uiState != UIState.LOCKED &&
           uiState != UIState.VIDEO_RECORDING &&
@@ -368,13 +356,13 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
       child: AnimatedOpacity(
         duration: Duration(milliseconds: 300),
         opacity: (uiState == UIState.BASIC ||
-            (_controller.value.isInitialized &&
-                !_controller.value.isBuffering &&
-                !_controller.value.isPlaying)) &&
-            uiState != UIState.LOCKED_INVISIBLE &&
-            uiState != UIState.LOCKED &&
-            uiState != UIState.VIDEO_RECORDING &&
-            uiState != UIState.CAST
+                    (_controller.value.isInitialized &&
+                        !_controller.value.isBuffering &&
+                        !_controller.value.isPlaying)) &&
+                uiState != UIState.LOCKED_INVISIBLE &&
+                uiState != UIState.LOCKED &&
+                uiState != UIState.VIDEO_RECORDING &&
+                uiState != UIState.CAST
             ? 1
             : 0,
         child: Container(
@@ -449,7 +437,8 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                           onPressed: () {
                             setState(() {
                               uiState = UIState.CAST;
-                              BlocProvider.of<CastBloc>(context)..add(GetCastDevicesEvent());
+                              BlocProvider.of<CastBloc>(context)
+                                ..add(GetCastDevicesEvent());
                             });
                           },
                           icon: SvgPicture.asset(
@@ -598,15 +587,15 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                 });
                               _timer =
                                   Timer(Duration(seconds: secondFadeOut), () {
-                                    if (uiState == UIState.LOCKED) {
-                                      if (mounted)
-                                        setState(
-                                              () {
-                                            uiState = UIState.LOCKED_INVISIBLE;
-                                          },
-                                        );
-                                    }
-                                  });
+                                if (uiState == UIState.LOCKED) {
+                                  if (mounted)
+                                    setState(
+                                      () {
+                                        uiState = UIState.LOCKED_INVISIBLE;
+                                      },
+                                    );
+                                }
+                              });
                             },
                             icon: SvgPicture.asset(
                               'assets/icons/player/ic_lock.svg',
@@ -636,7 +625,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                               if (_controller.value.isInitialized) {
                                 if (scale == 1) {
                                   scale = (MediaQuery.of(context).size.width /
-                                      MediaQuery.of(context).size.height) /
+                                          MediaQuery.of(context).size.height) /
                                       _controller.value.aspectRatio;
                                 } else {
                                   scale = 1;
@@ -847,8 +836,8 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
                     color: HexColor(
-                      '#4D4D4D',
-                    )),
+                  '#4D4D4D',
+                )),
               ),
               child: Stack(
                 children: [
@@ -885,9 +874,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                       vertical: 10,
                     ),
                     child: BlocConsumer<CastBloc, CastState>(
-                        listener: (context, state) {
-
-                        },
+                        listener: (context, state) {},
                         builder: (context, state) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -928,7 +915,8 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                     );
                                   }
 
-                                  if (state is CastSuccessState && state.devices.isNotEmpty)
+                                  if (state is CastSuccessState &&
+                                      state.devices.isNotEmpty)
                                     return Container(
                                       height: 150,
                                       padding: EdgeInsets.symmetric(
@@ -944,7 +932,8 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                             decoration: BoxDecoration(
                                               color: HexColor('#959595')
                                                   .withOpacity(0.2),
-                                              borderRadius: BorderRadius.circular(
+                                              borderRadius:
+                                                  BorderRadius.circular(
                                                 10,
                                               ),
                                             ),
@@ -952,7 +941,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                               color: Colors.transparent,
                                               child: InkWell(
                                                 borderRadius:
-                                                BorderRadius.circular(
+                                                    BorderRadius.circular(
                                                   10,
                                                 ),
                                                 onTap: () {
@@ -966,9 +955,11 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                                   ),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
+                                                        CrossAxisAlignment
+                                                            .center,
                                                     children: [
                                                       SvgPicture.asset(
                                                           'assets/icons/player/ic_tv.svg'),
@@ -978,16 +969,20 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                                       Expanded(
                                                         flex: 1,
                                                         child: Text(
-                                                          state.devices[index].name,
+                                                          state.devices[index]
+                                                              .name,
                                                           maxLines: 1,
                                                           overflow: TextOverflow
                                                               .ellipsis,
-                                                          style:
-                                                          GoogleFonts.roboto(
-                                                            textStyle: TextStyle(
-                                                              color: Colors.white,
+                                                          style: GoogleFonts
+                                                              .roboto(
+                                                            textStyle:
+                                                                TextStyle(
+                                                              color:
+                                                                  Colors.white,
                                                               fontWeight:
-                                                              FontWeight.w400,
+                                                                  FontWeight
+                                                                      .w400,
                                                               fontSize: 15,
                                                             ),
                                                           ),
@@ -1030,7 +1025,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                                     ),
                                     TextSpan(
                                       text:
-                                      " Mobil qurilma va Smart TV\nbitta Wi-Fi modemiga ulangan bo’lishi kerak!",
+                                          " Mobil qurilma va Smart TV\nbitta Wi-Fi modemiga ulangan bo’lishi kerak!",
                                       style: GoogleFonts.roboto(
                                         textStyle: TextStyle(
                                           color: Colors.white,
@@ -1045,8 +1040,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
                               )
                             ],
                           );
-                        }
-                    ),
+                        }),
                   ),
                 ],
               ),
@@ -1122,7 +1116,7 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
     session.stateStream.listen((state) {
       if (state == CastSessionState.connected) {
         final snackBar =
-        SnackBar(content: Text('${object.name} qurilmaga ulandi!'));
+            SnackBar(content: Text('${object.name} qurilmaga ulandi!'));
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         setState(() {
           uiState = UIState.BASIC;
@@ -1172,5 +1166,25 @@ class _VideoPlayerPageMultiState extends State<VideoPlayerPageMulti> {
       'currentTime': 0,
       'media': message,
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (_timer != null) _timer!.cancel();
+    _timer = null;
+    _controller.pause();
+    _controller.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    KeepScreenOn.turnOff();
+    videoPlayerManager.dispose();
+    if (Platform.isAndroid) {
+      _disableSecure();
+    }
   }
 }

@@ -1,4 +1,4 @@
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart' as cs;
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -26,7 +26,8 @@ class PremiumTariffItem extends StatefulWidget {
 }
 
 class _PremiumTariffItemState extends State<PremiumTariffItem> {
-  final CarouselController _carouselController = CarouselController();
+  final cs.CarouselSliderController _carouselController =
+      cs.CarouselSliderController();
 
   @override
   void initState() {
@@ -70,9 +71,9 @@ class _PremiumTariffItemState extends State<PremiumTariffItem> {
                         SizedBox(
                           height: 10,
                         ),
-                        CarouselSlider(
+                        cs.CarouselSlider(
                           carouselController: _carouselController,
-                          options: CarouselOptions(
+                          options: cs.CarouselOptions(
                               height: 90,
                               disableCenter: true,
                               reverse: widget.index % 2 == 1,
