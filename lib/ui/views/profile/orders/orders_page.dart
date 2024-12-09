@@ -182,18 +182,9 @@ class _OrdersPageState extends State<OrdersPage> {
                                         EdgeInsets.symmetric(horizontal: 20),
                                     child: ListView.builder(
                                       shrinkWrap: true,
+                                      padding: EdgeInsets.only(top: 130),
                                       physics: BouncingScrollPhysics(),
                                       itemBuilder: (context, index) {
-                                        if (index == 0) {
-                                          return Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 20,
-                                              ),
-                                              OrderItem(state.orders[index]),
-                                            ],
-                                          );
-                                        }
                                         return OrderItem(state.orders[index]);
                                       },
                                       itemCount: state.orders.length,

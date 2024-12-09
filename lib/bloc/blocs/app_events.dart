@@ -1,5 +1,7 @@
+import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
+import 'package:yangi_tv_new/models/db/database_task.dart';
 import 'package:yangi_tv_new/models/tariff.dart';
 
 ///login
@@ -15,8 +17,8 @@ class ChangeErrorEvent extends LoginEvent {
   final String type;
 
   const ChangeErrorEvent(
-      this.type,
-      );
+    this.type,
+  );
 
   @override
   List<Object?> get props => [];
@@ -26,8 +28,8 @@ class SendOtpEvent extends LoginEvent {
   final String unmasked;
 
   const SendOtpEvent(
-      this.unmasked,
-      );
+    this.unmasked,
+  );
 
   @override
   List<Object?> get props => [];
@@ -58,8 +60,8 @@ class RemoveSessionEvent extends LoginEvent {
   final String token;
 
   const RemoveSessionEvent(
-      this.token,
-      );
+    this.token,
+  );
 
   @override
   List<Object?> get props => [];
@@ -69,8 +71,8 @@ class ChangeNameEvent extends LoginEvent {
   final String name;
 
   const ChangeNameEvent(
-      this.name,
-      );
+    this.name,
+  );
 
   @override
   List<Object?> get props => [];
@@ -468,9 +470,37 @@ abstract class DownloadEvent extends Equatable {
   const DownloadEvent();
 }
 
-class DownloadTestEvent extends DownloadEvent {
+class SetTasksEvent extends DownloadEvent {
+  List<DatabaseTask> tasks;
+
+  SetTasksEvent(this.tasks);
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [
+        tasks,
+      ];
+}
+
+class DownloadTaskStatusUpdateEvent extends DownloadEvent {
+  final TaskStatusUpdate update;
+
+  DownloadTaskStatusUpdateEvent(this.update);
+
+  @override
+  List<Object?> get props => [
+        update,
+      ];
+}
+
+class DownloadTaskProgressUpdateEvent extends DownloadEvent {
+  final TaskProgressUpdate update;
+
+  DownloadTaskProgressUpdateEvent(this.update);
+
+  @override
+  List<Object?> get props => [
+    update,
+  ];
 }
 
 class LoadAllDownloadTasksEvent extends DownloadEvent {
@@ -505,15 +535,6 @@ class DeleteTaskEvent extends DownloadEvent {
   final String taskId;
 
   DeleteTaskEvent(this.taskId);
-
-  @override
-  List<Object?> get props => [];
-}
-
-class PrintTaskPathEvent extends DownloadEvent {
-  final String taskId;
-
-  PrintTaskPathEvent(this.taskId);
 
   @override
   List<Object?> get props => [];
@@ -598,7 +619,6 @@ class GetCastDevicesEvent extends CastEvent {
   @override
   List<Object?> get props => [];
 }
-
 
 //Orders
 //Orders

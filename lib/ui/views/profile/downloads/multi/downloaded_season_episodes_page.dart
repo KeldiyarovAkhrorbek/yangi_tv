@@ -557,7 +557,7 @@ class _DownloadedSeasonEpisodesPageState
                     ),
                   ),
                 ),
-                if (state is DownloadSuccessState)
+                if (state is DownloadState)
                   Builder(builder: (_) {
                     tasks = [];
                     state.tasks.forEach((task) {
@@ -655,7 +655,7 @@ class _DownloadedSeasonEpisodesPageState
   }
 
   Widget buildEpisode(
-      BuildContext context, DatabaseTask episode, DownloadSuccessState state) {
+      BuildContext context, DatabaseTask episode, DownloadState state) {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       child: Stack(

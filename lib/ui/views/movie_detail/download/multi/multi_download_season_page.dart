@@ -122,7 +122,7 @@ class _MultiDownloadSeasonPageState extends State<MultiDownloadSeasonPage> {
           builder: (context, state) {
             return Builder(
               builder: (_) {
-                if (state is DownloadSuccessState)
+                if (state is DownloadState)
                   return Stack(
                     children: [
                       Image.asset(

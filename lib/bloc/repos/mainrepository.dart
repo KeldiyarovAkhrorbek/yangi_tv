@@ -1,12 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:yangi_tv_new/helpers/secure_storage.dart';
 import 'package:yangi_tv_new/models/active_tariff.dart';
 import 'package:yangi_tv_new/models/merchant_data_click.dart';
-import 'package:yangi_tv_new/models/order_model.dart';
 import 'package:yangi_tv_new/models/story.dart';
 import 'package:yangi_tv_new/models/tariff.dart';
-import '../../helpers/constants.dart';
 import '../../models/Movie_Short.dart';
 import '../../models/banner.dart';
 import '../../models/category.dart';
@@ -20,7 +19,7 @@ import '../../models/single_movie_url.dart';
 class MainRepository {
   Future<String?> sendOTP(String phoneNumberUnmasked) async {
     final response = await Dio().post(
-      Constants.baseRegUrl + 'login',
+      (dotenv.env['BASE_REG_URL'] ?? '') + 'login',
       queryParameters: {
         'login': '998' + phoneNumberUnmasked,
       },
@@ -30,7 +29,7 @@ class MainRepository {
 
   Future<String?> resendOTP(String phoneNumberUnmasked) async {
     final response = await Dio().post(
-      Constants.baseRegUrl + 'resend',
+      (dotenv.env['BASE_REG_URL'] ?? '') + 'resend',
       queryParameters: {
         'login': '998' + phoneNumberUnmasked,
       },
@@ -41,7 +40,7 @@ class MainRepository {
   Future<dynamic> checkOTP(String phoneNumberUnmasked, String otp,
       String device_model, String device_name) async {
     final response = await Dio().post(
-      Constants.baseRegUrl + 'login',
+      (dotenv.env['BASE_REG_URL'] ?? '') + 'login',
       queryParameters: {
         'login': '998' + phoneNumberUnmasked,
         'code': otp,
@@ -54,7 +53,7 @@ class MainRepository {
 
   Future<String?> logoutDevice(String token) async {
     final response = await Dio().post(
-      Constants.baseRegUrl + 'logout',
+      (dotenv.env['BASE_REG_URL'] ?? '') + 'logout',
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
@@ -66,93 +65,109 @@ class MainRepository {
   }
 
   Future<List<BannerModel>> getBanners() async {
-    String? token = await SecureStorage().getToken();
-    final response = await Dio().get(
-      Constants.baseUrl + 'getBanners',
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer ${token}',
-        },
-      ),
-    );
-    List<BannerModel> banners = [];
-    var rawBanners = response.data['data'] as List;
-    rawBanners.forEach((element) {
-      var b = BannerModel.fromJson(element);
-      banners.add(b);
-    });
-    return banners;
+    try {
+      String? token = await SecureStorage().getToken();
+      final response = await Dio().get(
+        (dotenv.env['BASE_URL'] ?? '') + 'getBanners',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer ${token}',
+          },
+        ),
+      );
+      List<BannerModel> banners = [];
+      var rawBanners = response.data['data'] as List;
+      rawBanners.forEach((element) {
+        var b = BannerModel.fromJson(element);
+        banners.add(b);
+      });
+      return banners;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<Story>> getStories() async {
-    String? token = await SecureStorage().getToken();
-    final response = await Dio().get(
-      Constants.baseUrl + 'stories',
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer ${token}',
-        },
-      ),
-    );
-    List<Story> stories = [];
-    var rawBanners = response.data['data'][0] as List;
-    rawBanners.forEach((element) {
-      var b = Story.fromJson(element);
-      stories.add(b);
-    });
-    return stories;
+    try {
+      String? token = await SecureStorage().getToken();
+      final response = await Dio().get(
+        (dotenv.env['BASE_URL'] ?? '') + 'stories',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer ${token}',
+          },
+        ),
+      );
+      List<Story> stories = [];
+      var rawBanners = response.data['data'][0] as List;
+      rawBanners.forEach((element) {
+        var b = Story.fromJson(element);
+        stories.add(b);
+      });
+      return stories;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<Category>> getCategories() async {
-    String? token = await SecureStorage().getToken();
-    final response = await Dio().get(
-      Constants.baseUrl + 'getMain',
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer ${token}',
-        },
-      ),
-    );
-    List<Category> categoryList = [];
-    var rawMainList = response.data['data'] as List;
-    rawMainList.forEach((elMain) {
-      var rawMovieList = elMain['list'] as List;
-      List<MovieShort> movieList = [];
-      var name = elMain['name'] as String;
-      var id = elMain['id'] as int;
-      rawMovieList.forEach((element) {
-        var m = MovieShort.fromJson(element);
-        movieList.add(m);
+    try {
+      String? token = await SecureStorage().getToken();
+      final response = await Dio().get(
+        (dotenv.env['BASE_URL'] ?? '') + 'getMain',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer ${token}',
+          },
+        ),
+      );
+      List<Category> categoryList = [];
+      var rawMainList = response.data['data'] as List;
+      rawMainList.forEach((elMain) {
+        var rawMovieList = elMain['list'] as List;
+        List<MovieShort> movieList = [];
+        var name = elMain['name'] as String;
+        var id = elMain['id'] as int;
+        rawMovieList.forEach((element) {
+          var m = MovieShort.fromJson(element);
+          movieList.add(m);
+        });
+        Category category = Category(id: id, name: name, movies: movieList);
+        categoryList.add(category);
       });
-      Category category = Category(id: id, name: name, movies: movieList);
-      categoryList.add(category);
-    });
-    return categoryList;
+      return categoryList;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<Genre>> getGenres() async {
-    String? token = await SecureStorage().getToken();
-    final response = await Dio().get(
-      Constants.baseUrl + 'getGenres',
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer ${token}',
-        },
-      ),
-    );
-    var rawList = response.data['data']['list'] as List;
-    List<Genre> _temp = [];
-    rawList.forEach((element) {
-      var g = Genre.fromJson(element);
-      _temp.add(g);
-    });
-    return _temp;
+    try {
+      String? token = await SecureStorage().getToken();
+      final response = await Dio().get(
+        (dotenv.env['BASE_URL'] ?? '') + 'getGenres',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer ${token}',
+          },
+        ),
+      );
+      var rawList = response.data['data']['list'] as List;
+      List<Genre> _temp = [];
+      rawList.forEach((element) {
+        var g = Genre.fromJson(element);
+        _temp.add(g);
+      });
+      return _temp;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<dynamic> getGenreDetail(int genre_id, int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getGenreDetail',
+      (dotenv.env['BASE_URL'] ?? '') + 'getGenreDetail',
       queryParameters: {
         'genre_id': genre_id,
         'page': page,
@@ -169,7 +184,7 @@ class MainRepository {
   Future<dynamic> getCategoryDetail(int category_id, int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getCategoryDetail',
+      (dotenv.env['BASE_URL'] ?? '') + 'getCategoryDetail',
       queryParameters: {
         'category_id': category_id,
         'page': page,
@@ -186,7 +201,7 @@ class MainRepository {
   Future<dynamic> getFavorites(int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'profile/getFavorites',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/getFavorites',
       queryParameters: {
         'page': page,
       },
@@ -202,7 +217,7 @@ class MainRepository {
   Future<MovieFull> getMovieDetail(int content_id) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getContentDetail',
+      (dotenv.env['BASE_URL'] ?? '') + 'getContentDetail',
       queryParameters: {
         'content_id': content_id,
       },
@@ -219,7 +234,7 @@ class MainRepository {
   Future<List<MovieShort>> getRelatedMovies(int content_id) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'contents/related',
+      (dotenv.env['BASE_URL'] ?? '') + 'contents/related',
       queryParameters: {
         'content_id': content_id,
       },
@@ -240,7 +255,7 @@ class MainRepository {
   Future<dynamic> getPersonDetail(int person_id, int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getPersonDetail',
+      (dotenv.env['BASE_URL'] ?? '') + 'getPersonDetail',
       queryParameters: {
         'person_id': person_id,
         'page': page,
@@ -257,7 +272,7 @@ class MainRepository {
   Future<dynamic> getSearchResult(String search_text, int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'search',
+      (dotenv.env['BASE_URL'] ?? '') + 'search',
       queryParameters: {
         'search': search_text,
         'page': page,
@@ -274,7 +289,7 @@ class MainRepository {
   Future<Profile> getProfile() async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getProfile',
+      (dotenv.env['BASE_URL'] ?? '') + 'getProfile',
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
@@ -287,7 +302,7 @@ class MainRepository {
   Future<dynamic> getSessions() async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'profile/getSessions',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/getSessions',
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
@@ -300,7 +315,7 @@ class MainRepository {
   Future<List<Tariff>> getTariffs(String filter) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'profile/getTariffs',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/getTariffs',
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
@@ -316,32 +331,10 @@ class MainRepository {
     return tariffs;
   }
 
-  Future<List<MovieShort>> getTestMovies() async {
-    String? token = await SecureStorage().getToken();
-    final response = await Dio().get(
-      Constants.baseUrl + 'getCategoryDetail',
-      queryParameters: {
-        'content_id': 1,
-      },
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer ${token}',
-        },
-      ),
-    );
-    var rawList = response.data['data']['list'] as List;
-    List<MovieShort> movies = [];
-    for (var value in rawList) {
-      var t = MovieShort.fromJson(value);
-      movies.add(t);
-    }
-    return movies;
-  }
-
   Future<String> buyTariff(int tariff_id) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().post(
-      Constants.baseUrl + 'profile/buyTariff',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/buyTariff',
       queryParameters: {
         'tariff_id': tariff_id,
       },
@@ -357,7 +350,7 @@ class MainRepository {
   Future<List<ActiveTariff>> getActiveTariffs() async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'profile/getActiveTariffs',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/getActiveTariffs',
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
@@ -376,7 +369,7 @@ class MainRepository {
   Future<String?> activatePromocode(String promocode) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().post(
-      Constants.baseUrl + 'promocodes/use',
+      (dotenv.env['BASE_URL'] ?? '') + 'promocodes/use',
       queryParameters: {
         'promocode': promocode,
       },
@@ -392,7 +385,7 @@ class MainRepository {
   Future<dynamic> getTransactionHistory(int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'history-transactions',
+      (dotenv.env['BASE_URL'] ?? '') + 'history-transactions',
       queryParameters: {
         'page': page,
       },
@@ -408,7 +401,7 @@ class MainRepository {
   Future<List<Season>?> getSeasons(int content_id) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getMovieUrl',
+      (dotenv.env['BASE_URL'] ?? '') + 'getMovieUrl',
       queryParameters: {
         'content_id': content_id,
       },
@@ -441,7 +434,7 @@ class MainRepository {
   Future<SingleMovieUrl?> getSingleMovieURL(int content_id) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getMovieUrl',
+      (dotenv.env['BASE_URL'] ?? '') + 'getMovieUrl',
       queryParameters: {
         'content_id': content_id,
       },
@@ -460,7 +453,7 @@ class MainRepository {
   Future<String?> putReaction(int content_id, String reaction) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().post(
-      Constants.baseUrl + 'contents/${reaction}',
+      (dotenv.env['BASE_URL'] ?? '') + 'contents/${reaction}',
       queryParameters: {
         'content_id': content_id,
       },
@@ -476,7 +469,7 @@ class MainRepository {
   Future<String?> addToFavorite(int content_id) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().post(
-      Constants.baseUrl + 'profile/addToFavorite',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/addToFavorite',
       queryParameters: {
         'content_id': content_id,
       },
@@ -492,7 +485,7 @@ class MainRepository {
   Future<String?> removeFromFavorite(int content_id) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().delete(
-      Constants.baseUrl + 'profile/removeFromFavorite',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/removeFromFavorite',
       queryParameters: {
         'content_id': content_id,
       },
@@ -508,7 +501,7 @@ class MainRepository {
   Future<dynamic> getComments(int content_id, int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'getComments',
+      (dotenv.env['BASE_URL'] ?? '') + 'getComments',
       queryParameters: {
         'content_id': content_id,
         'page': page,
@@ -525,7 +518,7 @@ class MainRepository {
   Future<String?> addComment(int content_id, String text) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().post(
-      Constants.baseUrl + 'addComment',
+      (dotenv.env['BASE_URL'] ?? '') + 'addComment',
       queryParameters: {
         'content_id': content_id,
         'text': text,
@@ -555,7 +548,7 @@ class MainRepository {
 
   Future<bool> shouldUpdate(String platform, String version) async {
     final response = await Dio().get(
-      Constants.baseRegUrl + 'version',
+      (dotenv.env['BASE_REG_URL'] ?? '') + 'version',
       queryParameters: {
         'platform': platform,
         'version': version,
@@ -567,7 +560,7 @@ class MainRepository {
   Future<String?> postName(String name) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().post(
-      Constants.baseRegUrl + 'postName',
+      (dotenv.env['BASE_REG_URL'] ?? '') + 'postName',
       queryParameters: {
         'name': name,
       },
@@ -583,7 +576,7 @@ class MainRepository {
   Future<dynamic> getCollections(int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'collections/list',
+      (dotenv.env['BASE_URL'] ?? '') + 'collections/list',
       queryParameters: {
         'page': page,
       },
@@ -599,7 +592,7 @@ class MainRepository {
   Future<dynamic> getCollectionDetail(int collection_id, int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'collections/contents',
+      (dotenv.env['BASE_URL'] ?? '') + 'collections/contents',
       queryParameters: {
         'collection_id': collection_id,
         'page': page,
@@ -616,7 +609,7 @@ class MainRepository {
   Future<MerchantDataClick> getClickMerchantData() async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'vendor-params',
+      (dotenv.env['BASE_URL'] ?? '') + 'vendor-params',
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
@@ -629,7 +622,7 @@ class MainRepository {
   Future<MerchantDataPayme> getPaymeMerchantData() async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'vendor-params',
+      (dotenv.env['BASE_URL'] ?? '') + 'vendor-params',
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
@@ -642,7 +635,7 @@ class MainRepository {
   Future<dynamic> getOrders(int page) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().get(
-      Constants.baseUrl + 'profile/getOrderContent',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/getOrderContent',
       queryParameters: {
         'page': page,
       },
@@ -658,7 +651,7 @@ class MainRepository {
   Future<String> addOrder(String name, String year) async {
     String? token = await SecureStorage().getToken();
     final response = await Dio().post(
-      Constants.baseUrl + 'profile/addOrderContent',
+      (dotenv.env['BASE_URL'] ?? '') + 'profile/addOrderContent',
       queryParameters: {
         'name': name,
         'year': year,

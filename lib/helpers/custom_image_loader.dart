@@ -21,6 +21,7 @@ class CustomImageLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CachedNetworkImage(
+      fadeInDuration: Duration.zero,
       imageUrl: imageUrl,
       width: width,
       height: height,

@@ -703,14 +703,11 @@ class CommentErrorState extends CommentState {
 ///download
 ///download
 ///download
-@immutable
-abstract class DownloadState extends Equatable {}
-
-class DownloadSuccessState extends DownloadState {
+class DownloadState extends Equatable {
   final List<DatabaseTask> tasks;
   final DateTime time;
 
-  DownloadSuccessState({
+  DownloadState({
     required this.tasks,
     required this.time,
   });

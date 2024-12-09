@@ -1,8 +1,9 @@
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 String decryptText(String encryptedText) {
-  final key = encrypt.Key.fromUtf8('op1PU19Y2JoWcj0CwKwgYTtKh8OlrR3O');
-  final iv = encrypt.IV.fromUtf8('Yf3sjVzmiLgAW83a');
+  final key = encrypt.Key.fromUtf8(dotenv.env['DEC_KEY'] ?? '');
+  final iv = encrypt.IV.fromUtf8(dotenv.env['IV'] ?? '');
 
   final encrypter =
       encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));

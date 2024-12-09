@@ -1,8 +1,8 @@
 class MovieShort {
   final int id;
-  final String name;
-  final String tariff;
-  final String poster;
+  final String? name;
+  final String? tariff;
+  final String? poster;
 
   MovieShort({
     required this.id,

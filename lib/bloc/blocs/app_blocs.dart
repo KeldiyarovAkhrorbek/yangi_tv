@@ -7,6 +7,7 @@ import 'package:background_downloader/background_downloader.dart';
 import 'package:cast/device.dart';
 import 'package:cast/discovery_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:installed_apps/installed_apps.dart';
@@ -105,7 +106,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(EnterPhoneNumberState(
               isLoading: false, errorText: "SMS yuborib bo'lmadi!"));
         }
-      } catch (e) {
+      } on DioException catch (e) {
+        debugPrint('Request URL: ${e.requestOptions.uri}');
+        debugPrint('Response Status: ${e.response?.statusCode}');
+        debugPrint('Response Data: ${e.response?.data}');
         emit(EnterPhoneNumberState(
             isLoading: false, errorText: "SMS yuborib bo'lmadi!"));
       }
@@ -375,7 +379,7 @@ class TestTokenBloc extends Bloc<TestEvent, TestState> {
           return;
         }
 
-        var stories = await _mainRepository.getStories();
+        var profile = await _mainRepository.getProfile();
 
         //detect emulator or course
         //uncomment this
@@ -697,6 +701,7 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
         isUrlWatchLoaded = false;
         isUrlDownloadLoaded = false;
         isUrlWatchLoading = false;
+        log(event.content_id.toString());
         movieFull = await _mainRepository.getMovieDetail(event.content_id);
         relatedMovies =
             await _mainRepository.getRelatedMovies(event.content_id);
@@ -724,6 +729,7 @@ class MovieDetailBloc extends Bloc<MovieDetailEvent, MovieDetailState> {
           ),
         );
       } catch (e) {
+        log(e.toString());
         emit(MovieDetailErrorState(e.toString()));
       }
     });
@@ -1567,97 +1573,13 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
 class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
   final MainRepository _mainRepository;
   List<DatabaseTask> all_tasks = [];
-  StreamSubscription<TaskUpdate>? subscription;
   DateTime time = DateTime.now();
 
   DownloadBloc(this._mainRepository)
-      : super(DownloadSuccessState(
+      : super(DownloadState(
           tasks: [],
           time: DateTime.now(),
         )) {
-    on<LoadAllDownloadTasksEvent>((event, emit) async {
-      try {
-        var records = await FileDownloader().database.allRecords();
-        all_tasks = [];
-        records.forEach((record) async {
-          Map<String, dynamic> meta_data = jsonDecode(record.task.metaData);
-          if (record.status == TaskStatus.canceled) {
-            await FileDownloader()
-                .database
-                .deleteRecordWithId(record.task.taskId);
-          } else {
-            String filePath = await record.task.filePath();
-            all_tasks.add(DatabaseTask(
-              taskId: record.task.taskId,
-              movieName: meta_data['movie_name'],
-              name: meta_data['name'],
-              displayName: record.task.displayName,
-              url: record.task.url,
-              size: meta_data['size'],
-              image: meta_data['image'],
-              tariff: meta_data['tariff'],
-              networkSpeed: 0,
-              progress: record.progress,
-              status: record.status,
-              remainingTime: 0,
-              is_multi: meta_data['is_multi'],
-              seasonName: meta_data['season_name'],
-              path: filePath,
-            ));
-          }
-        });
-
-        if (subscription == null)
-          subscription = FileDownloader().updates.listen((update) async {
-            switch (update) {
-              case TaskStatusUpdate():
-                {
-                  var index = -1;
-                  index = all_tasks.indexWhere(
-                      (element) => element.taskId == update.task.taskId);
-                  if (index == -1) {
-                    return;
-                  }
-                  all_tasks[index].status = update.status;
-                  all_tasks[index].path = await update.task.filePath();
-                  if (update.status == TaskStatus.canceled ||
-                      update.status == TaskStatus.notFound ||
-                      update.status == TaskStatus.failed) {
-                    await FileDownloader().cancelTaskWithId(update.task.taskId);
-                    await FileDownloader()
-                        .database
-                        .deleteRecordWithId(update.task.taskId);
-                    all_tasks.removeWhere(
-                        (element) => element.taskId == update.task.taskId);
-                  }
-                  break;
-                }
-
-              case TaskProgressUpdate():
-                {
-                  var index = -1;
-                  index = all_tasks.indexWhere(
-                      (element) => element.taskId == update.task.taskId);
-                  if (index == -1) {
-                    return;
-                  }
-                  if (update.progress > 0)
-                    all_tasks[index].progress = update.progress;
-                  if (update.expectedFileSize > 0)
-                    all_tasks[index].size = update.expectedFileSize;
-                  if (update.networkSpeed > 0)
-                    all_tasks[index].networkSpeed = update.networkSpeed;
-                  all_tasks[index].remainingTime =
-                      update.timeRemaining.inSeconds;
-                  break;
-                }
-            }
-          });
-      } catch (e) {
-        // emit(DownloadSuccessState(tasks: all_tasks, time: DateTime.now()));
-      }
-    });
-
     on<AddDownloadEvent>((event, emit) async {
       var taskIndex = -1;
       taskIndex = all_tasks.indexWhere((element) => element.url == event.url);
@@ -1677,8 +1599,6 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
         'is_multi': event.is_multi,
       };
 
-      var cacheDirectory = await getTemporaryDirectory();
-
       final task = DownloadTask(
         url: event.url,
         filename: event.url.substring(event.url.lastIndexOf("/") + 1),
@@ -1686,12 +1606,14 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
         requiresWiFi: false,
         retries: 10,
         displayName: event.displayName,
-        directory: cacheDirectory.path,
+        baseDirectory: Platform.isAndroid
+            ? BaseDirectory.temporary
+            : BaseDirectory.applicationLibrary,
         allowPause: true,
         metaData: jsonEncode(meta_data_map),
       );
 
-      final result = await FileDownloader().enqueue(task);
+      var result = await FileDownloader().enqueue(task);
       if (result)
         all_tasks.add(DatabaseTask(
           taskId: task.taskId,
@@ -1712,8 +1634,63 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
         ));
     });
 
+    on<DownloadTaskStatusUpdateEvent>((event, emit) async {
+      var index = -1;
+      index = all_tasks
+          .indexWhere((element) => element.taskId == event.update.task.taskId);
+      if (index == -1) {
+        return;
+      }
+      all_tasks[index].status = event.update.status;
+      all_tasks[index].path = await event.update.task.filePath();
+      if (event.update.status == TaskStatus.canceled ||
+          event.update.status == TaskStatus.notFound ||
+          event.update.status == TaskStatus.failed) {
+        await FileDownloader().cancelTaskWithId(event.update.task.taskId);
+        await FileDownloader()
+            .database
+            .deleteRecordWithId(event.update.task.taskId);
+        all_tasks.removeWhere(
+            (element) => element.taskId == event.update.task.taskId);
+      }
+
+      emit(DownloadState(
+        tasks: all_tasks,
+        time: DateTime.now(),
+      ));
+    });
+
+    on<DownloadTaskProgressUpdateEvent>((event, emit) async {
+      var index = -1;
+      index = all_tasks
+          .indexWhere((element) => element.taskId == event.update.task.taskId);
+      if (index == -1) {
+        return;
+      }
+      if (event.update.progress > 0)
+        all_tasks[index].progress = event.update.progress;
+      if (event.update.expectedFileSize > 0)
+        all_tasks[index].size = event.update.expectedFileSize;
+      if (event.update.networkSpeed > 0)
+        all_tasks[index].networkSpeed = event.update.networkSpeed;
+      all_tasks[index].remainingTime = event.update.timeRemaining.inSeconds;
+
+      emit(DownloadState(
+        tasks: all_tasks,
+        time: DateTime.now(),
+      ));
+    });
+
     on<UpdateDownloadsEvent>((event, emit) async {
-      emit(DownloadSuccessState(
+      emit(DownloadState(
+        tasks: all_tasks,
+        time: DateTime.now(),
+      ));
+    });
+
+    on<SetTasksEvent>((event, emit) async {
+      all_tasks = event.tasks;
+      emit(DownloadState(
         tasks: all_tasks,
         time: DateTime.now(),
       ));
@@ -1789,7 +1766,10 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
       } else {
         all_tasks.removeWhere((element) => element.taskId == event.taskId);
         await FileDownloader().cancelTaskWithId(event.taskId);
+        await FileDownloader().database.deleteRecordWithId(event.taskId);
       }
+
+      emit(DownloadState(tasks: all_tasks, time: DateTime.now()));
     });
   }
 }
@@ -1807,6 +1787,7 @@ class CollectionBloc extends Bloc<CollectionEvent, CollectionState> {
   CollectionBloc(this._mainRepository) : super(CollectionLoadingState()) {
     on<GetCollectionsEvent>((event, emit) async {
       emit(CollectionLoadingState());
+      page = 0;
       try {
         var response = await _mainRepository.getCollections(page);
         lastPage = response['lastPage'];

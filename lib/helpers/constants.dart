@@ -1,8 +1,6 @@
 import 'dart:ui';
 
 class Constants {
-  static const baseRegUrl = 'https://admin.yangi.tv/api/';
-  static const baseUrl = 'https://admin.yangi.tv/api/v1/';
 
   static const defaultShimmerBaseColor = Color.fromRGBO(64, 64, 64, 0.5);
   static const defaultShimmerHighlightColor =

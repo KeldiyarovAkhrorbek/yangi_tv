@@ -34,7 +34,7 @@ class MovieRelatedItem extends StatelessWidget {
                     5,
                   ),
                   child: CustomImageLoader(
-                    imageUrl: movie.poster,
+                    imageUrl: movie.poster ?? '',
                     width: 128,
                     height: 190,
                     fit: BoxFit.cover,
@@ -59,7 +59,7 @@ class MovieRelatedItem extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            movie.tariff,
+                            movie.tariff ?? 'PREMIUM',
                             style: GoogleFonts.roboto(
                               textStyle: TextStyle(
                                 color: movie.tariff == 'PREMIUM'
@@ -103,7 +103,7 @@ class MovieRelatedItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          movie.name,
+                          movie.name ?? '',
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

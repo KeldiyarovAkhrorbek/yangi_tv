@@ -1,19 +1,14 @@
 import 'dart:ui';
-import 'package:blur/blur.dart';
-import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:like_button/like_button.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:yangi_tv_new/helpers/custom_image_loader.dart';
-import 'package:yangi_tv_new/models/movie_full.dart';
 import 'package:yangi_tv_new/ui/views/comment/comment_page.dart';
 import 'package:yangi_tv_new/ui/views/genre_detail/genre_detail_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/download/multi/multi_download_season_page.dart';
@@ -23,14 +18,18 @@ import 'package:yangi_tv_new/ui/views/movie_detail/youtube_player_page.dart';
 import 'package:yangi_tv_new/ui/views/person_detail/person_detail_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/tariffs_page/tariffs_page.dart';
 import 'package:yangi_tv_new/ui/widgets/detail/quality_episode.dart';
-import 'package:yangi_tv_new/ui/widgets/loading/movie_item_loading.dart';
+import 'package:yangi_tv_new/ui/widgets/dialog/noDownloadDialog.dart';
+import 'package:yangi_tv_new/ui/widgets/dialog/tryAgainDialog.dart';
+import 'package:yangi_tv_new/ui/widgets/dialog/warningDialog.dart';
+import 'package:yangi_tv_new/ui/widgets/movie_detail/actor_widget.dart';
+import 'package:yangi_tv_new/ui/widgets/movie_detail/fading_effect.dart';
+import 'package:yangi_tv_new/ui/widgets/movie_detail/movie_detail_loading.dart';
+import 'package:yangi_tv_new/ui/widgets/movie_detail/rating.dart';
 import 'package:yangi_tv_new/ui/widgets/movie_related_item.dart';
 
 import '../../../bloc/blocs/app_events.dart';
 import '../../../bloc/repos/mainrepository.dart';
-import '../../../helpers/constants.dart';
 import '../../../helpers/translit.dart';
-import '../../widgets/movie_item.dart';
 import 'watch/multi/seasons_page.dart';
 import 'watch/single/video_player_page_single.dart';
 
@@ -58,313 +57,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     if (args['type'] != null) type = args['type'];
   }
 
-  Widget buildActor(Actor actor, VoidCallback pressed) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(PersonDetailPage.routeName, arguments: {
-          'person_name': Translit().toTranslit(
-              source: actor.name.replaceAll("Дж", "Ж").replaceAll("дж", "ж")),
-          'person_id': actor.id,
-          'person_image': actor.image,
-        });
-      },
-      child: Container(
-        width: 60,
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: CustomImageLoader(
-                imageUrl: actor.image,
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-                borderRadius: 0,
-              ),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Text(
-              Translit().toTranslit(
-                  source:
-                      actor.name.replaceAll("Дж", "Ж").replaceAll("дж", "ж")),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.openSans(
-                textStyle: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 9,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   final ScrollController scrollController = ScrollController();
   bool show = false;
 
-  void openTryAgainDialog(VoidCallback tryAgainPressed) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: true,
-      builder: (_) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(),
-                Stack(
-                  children: [
-                    Blur(
-                      blur: 7,
-                      blurColor: HexColor('#4D4D4D').withOpacity(1),
-                      child: Container(
-                        width: double.infinity,
-                        child: SizedBox(
-                          height: 220,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          100,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          SvgPicture.asset(
-                            'assets/icons/auth/ic_dangerous.svg',
-                            height: 50,
-                            width: 50,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            "Ma'lumotni yuklab bo'lmadi,\niltimos, qayta urining.",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.montserrat(
-                              textStyle: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 50.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                RawMaterialButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10),
-                                    ),
-                                  ),
-                                  fillColor: HexColor('#FF4747'),
-                                  onPressed: () {
-                                    tryAgainPressed();
-                                    Navigator.of(context).maybePop();
-                                  },
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
-                                    child: Text(
-                                      'Qayta urinish',
-                                      style: GoogleFonts.inter(
-                                        textStyle: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-                SizedBox(),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   String proceedType = '';
-
-  void openWarningDialog(BuildContext context, VoidCallback proceedPressed) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: true,
-      builder: (_) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(),
-                Stack(
-                  children: [
-                    Blur(
-                      blur: 7,
-                      blurColor: HexColor('#4D4D4D').withOpacity(1),
-                      child: Container(
-                        width: double.infinity,
-                        child: SizedBox(
-                          height: 250,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 250,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          100,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          SvgPicture.asset(
-                              'assets/icons/watch/ic_warning.svg'),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(
-                              "Ushbu kontent uchun yosh chegarasi 18+ deb belgilangan.\nSiz 18 yoshdan oshganmisiz?",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.montserrat(
-                                textStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 50.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                RawMaterialButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10),
-                                    ),
-                                  ),
-                                  fillColor: Colors.white,
-                                  onPressed: () {
-                                    Navigator.of(context).maybePop();
-                                  },
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
-                                    child: Text(
-                                      "Yo'q",
-                                      style: GoogleFonts.inter(
-                                        textStyle: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                RawMaterialButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10),
-                                    ),
-                                  ),
-                                  fillColor: HexColor('#FF4747'),
-                                  onPressed: () async {
-                                    Navigator.of(context).maybePop();
-                                    await Future.delayed(
-                                        Duration(milliseconds: 100));
-                                    proceedPressed();
-                                  },
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
-                                    child: Text(
-                                      'Ha',
-                                      style: GoogleFonts.inter(
-                                        textStyle: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-                SizedBox(),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -375,7 +71,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       child: BlocConsumer<MovieDetailBloc, MovieDetailState>(
           listener: (context, state) {
         if (state is MovieDetailErrorState) {
-          openTryAgainDialog(() {
+          openTryAgainDialog(context, () {
             BlocProvider.of<MovieDetailBloc>(context)
               ..add(LoadMovieDetailEvent(content_id));
           });
@@ -384,7 +80,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         if (state is MovieDetailLoadedState &&
             (state.isUrlWatchLoaded || state.isUrlDownloadLoaded) &&
             state.errorUrlText == 'socket') {
-          openTryAgainDialog(() {
+          openTryAgainDialog(context, () {
             BlocProvider.of<MovieDetailBloc>(context)
               ..add(LoadMovieUrlEvent(proceedType));
           });
@@ -585,859 +281,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   }
                 });
                 if (state is MovieDetailLoadingState)
-                  return Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: SingleChildScrollView(
-                      physics: NeverScrollableScrollPhysics(),
-                      child: Stack(
-                        alignment: Alignment.topCenter,
-                        children: [
-                          CustomPaint(
-                            foregroundPainter: FadingEffect(),
-                            child: ImageFiltered(
-                              imageFilter: ImageFilter.blur(
-                                sigmaX: 6,
-                                sigmaY: 6,
-                              ),
-                              child: Shimmer.fromColors(
-                                baseColor: Constants.defaultShimmerBaseColor,
-                                highlightColor:
-                                    Constants.defaultShimmerHighlightColor,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 250,
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Center(
-                                child: IconButton(
-                                  onPressed: null,
-                                  icon: Icon(
-                                    Icons.play_circle_fill,
-                                    color: Colors.transparent,
-                                    size: 50,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 80,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        if (imageUrl != '')
-                                          ClipRRect(
-                                            child: Hero(
-                                              tag: imageUrl +
-                                                  "${content_id}" +
-                                                  "${type ?? "main"}",
-                                              child: CustomImageLoader(
-                                                imageUrl: imageUrl,
-                                                width: 150,
-                                                height: 220,
-                                                fit: BoxFit.cover,
-                                                borderRadius: 0,
-                                              ),
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                        if (imageUrl == '')
-                                          Shimmer.fromColors(
-                                            baseColor: Constants
-                                                .defaultShimmerBaseColor,
-                                            highlightColor: Constants
-                                                .defaultShimmerHighlightColor,
-                                            child: Container(
-                                              width: 150,
-                                              height: 220,
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 5, vertical: 5),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                  10,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        height: 220,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Shimmer.fromColors(
-                                              baseColor: Constants
-                                                  .defaultShimmerBaseColor,
-                                              highlightColor: Constants
-                                                  .defaultShimmerHighlightColor,
-                                              child: Container(
-                                                width: 170,
-                                                height: 20,
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 5, vertical: 5),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ),
-                                            Shimmer.fromColors(
-                                              baseColor: Constants
-                                                  .defaultShimmerBaseColor,
-                                              highlightColor: Constants
-                                                  .defaultShimmerHighlightColor,
-                                              child: Container(
-                                                width: 100,
-                                                height: 10,
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 5, vertical: 5),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ),
-                                            Shimmer.fromColors(
-                                              baseColor: Constants
-                                                  .defaultShimmerBaseColor,
-                                              highlightColor: Constants
-                                                  .defaultShimmerHighlightColor,
-                                              child: Container(
-                                                width: 120,
-                                                height: 10,
-                                                margin: EdgeInsets.symmetric(
-                                                    horizontal: 5, vertical: 5),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ),
-                                            Row(
-                                              children: [
-                                                Shimmer.fromColors(
-                                                  baseColor: Constants
-                                                      .defaultShimmerBaseColor,
-                                                  highlightColor: Constants
-                                                      .defaultShimmerHighlightColor,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 10,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                                Shimmer.fromColors(
-                                                  baseColor: Constants
-                                                      .defaultShimmerBaseColor,
-                                                  highlightColor: Constants
-                                                      .defaultShimmerHighlightColor,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 10,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Shimmer.fromColors(
-                                                  baseColor: Constants
-                                                      .defaultShimmerBaseColor,
-                                                  highlightColor: Constants
-                                                      .defaultShimmerHighlightColor,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 10,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                                Shimmer.fromColors(
-                                                  baseColor: Constants
-                                                      .defaultShimmerBaseColor,
-                                                  highlightColor: Constants
-                                                      .defaultShimmerHighlightColor,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 10,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Shimmer.fromColors(
-                                                  baseColor: Constants
-                                                      .defaultShimmerBaseColor,
-                                                  highlightColor: Constants
-                                                      .defaultShimmerHighlightColor,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 10,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                                Shimmer.fromColors(
-                                                  baseColor: Constants
-                                                      .defaultShimmerBaseColor,
-                                                  highlightColor: Constants
-                                                      .defaultShimmerHighlightColor,
-                                                  child: Container(
-                                                    width: 50,
-                                                    height: 10,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Shimmer.fromColors(
-                                              baseColor: Constants
-                                                  .defaultShimmerBaseColor,
-                                              highlightColor: Constants
-                                                  .defaultShimmerHighlightColor,
-                                              child: Container(
-                                                width: double.infinity,
-                                                height: 35,
-                                                margin: EdgeInsets.symmetric(
-                                                  horizontal: 5,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.black,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              // reaction
-                              SizedBox(
-                                height: 60,
-                                child: ListView(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  children: [
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 70,
-                                        height: 60,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 70,
-                                        height: 60,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 70,
-                                        height: 60,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 70,
-                                        height: 60,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 70,
-                                        height: 60,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 70,
-                                        height: 60,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 70,
-                                        height: 60,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              SizedBox(
-                                height: 60,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 80,
-                                      child: Shimmer.fromColors(
-                                        baseColor:
-                                            Constants.defaultShimmerBaseColor,
-                                        highlightColor: Constants
-                                            .defaultShimmerHighlightColor,
-                                        child: Container(
-                                          width: 70,
-                                          height: 60,
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 20,
-                                      child: Shimmer.fromColors(
-                                        baseColor:
-                                            Constants.defaultShimmerBaseColor,
-                                        highlightColor: Constants
-                                            .defaultShimmerHighlightColor,
-                                        child: Container(
-                                          width: 70,
-                                          height: 60,
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              // genre
-                              Shimmer.fromColors(
-                                baseColor: Constants.defaultShimmerBaseColor,
-                                highlightColor:
-                                    Constants.defaultShimmerHighlightColor,
-                                child: Container(
-                                  width: 100,
-                                  height: 20,
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              SizedBox(
-                                height: 30,
-                                child: ListView(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  children: [
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 100,
-                                        height: 30,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 100,
-                                        height: 30,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 100,
-                                        height: 30,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 100,
-                                        height: 30,
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              //about
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Shimmer.fromColors(
-                                baseColor: Constants.defaultShimmerBaseColor,
-                                highlightColor:
-                                    Constants.defaultShimmerHighlightColor,
-                                child: Container(
-                                  width: 150,
-                                  height: 20,
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 3,
-                              ),
-                              Shimmer.fromColors(
-                                baseColor: Constants.defaultShimmerBaseColor,
-                                highlightColor:
-                                    Constants.defaultShimmerHighlightColor,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 20,
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                              Shimmer.fromColors(
-                                baseColor: Constants.defaultShimmerBaseColor,
-                                highlightColor:
-                                    Constants.defaultShimmerHighlightColor,
-                                child: Container(
-                                  width: 300,
-                                  height: 20,
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-
-                              //actors and directors
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                children: [
-                                  Shimmer.fromColors(
-                                    baseColor:
-                                        Constants.defaultShimmerBaseColor,
-                                    highlightColor:
-                                        Constants.defaultShimmerHighlightColor,
-                                    child: Container(
-                                      width: 60,
-                                      height: 20,
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 5, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20,
-                                  ),
-                                  Shimmer.fromColors(
-                                    baseColor:
-                                        Constants.defaultShimmerBaseColor,
-                                    highlightColor:
-                                        Constants.defaultShimmerHighlightColor,
-                                    child: Container(
-                                      width: 60,
-                                      height: 20,
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 5, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              SizedBox(
-                                height: 60,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  children: [
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 25,
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Shimmer.fromColors(
-                                      baseColor:
-                                          Constants.defaultShimmerBaseColor,
-                                      highlightColor: Constants
-                                          .defaultShimmerHighlightColor,
-                                      child: Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius:
-                                              BorderRadius.circular(30),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              // other
-                              Shimmer.fromColors(
-                                baseColor: Constants.defaultShimmerBaseColor,
-                                highlightColor:
-                                    Constants.defaultShimmerHighlightColor,
-                                child: Container(
-                                  width: 100,
-                                  height: 20,
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                              //related movies
-                              SizedBox(
-                                height: 5,
-                              ),
-                              SizedBox(
-                                height: 230,
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  separatorBuilder: (context, index) =>
-                                      SizedBox(
-                                    width: 10,
-                                  ),
-                                  itemBuilder: (context, index) =>
-                                      MovieItemLoading(),
-                                  itemCount: 5,
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                  return MovieDetailLoadingWidget(
+                    content_id: content_id,
+                    imageUrl: imageUrl,
+                    type: type,
                   );
                 if (state is MovieDetailLoadedState) {
                   return Container(
@@ -2359,6 +1206,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                                     state.isUrlDownloadLoading
                                                         ? null
                                                         : () {
+                                                            if (state.movie
+                                                                    .access_download !=
+                                                                'on') {
+                                                              openNoDownloadDialog(
+                                                                  context);
+                                                              return;
+                                                            }
+
                                                             proceedType =
                                                                 'download';
                                                             BlocProvider.of<
@@ -2564,8 +1419,27 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                             SizedBox(
                                               height: 5,
                                             ),
-                                            buildActor(
-                                                state.movie.director[0], () {}),
+                                            ActorWidget(state.movie.director[0],
+                                                () {
+                                              Navigator.of(context).pushNamed(
+                                                  PersonDetailPage.routeName,
+                                                  arguments: {
+                                                    'person_name': Translit()
+                                                        .toTranslit(
+                                                            source: state
+                                                                .movie
+                                                                .director[0]
+                                                                .name
+                                                                .replaceAll(
+                                                                    "Дж", "Ж")
+                                                                .replaceAll(
+                                                                    "дж", "ж")),
+                                                    'person_id': state
+                                                        .movie.director[0].id,
+                                                    'person_image': state.movie
+                                                        .director[0].image,
+                                                  });
+                                            }),
                                           ],
                                         ),
                                         Expanded(
@@ -2608,10 +1482,37 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                                         .movie.actors.length,
                                                     itemBuilder:
                                                         (context, index) =>
-                                                            buildActor(
+                                                            ActorWidget(
                                                       state.movie.actors[index],
                                                       () {
-                                                        //go to actor page
+                                                        Navigator.of(context)
+                                                            .pushNamed(
+                                                                PersonDetailPage
+                                                                    .routeName,
+                                                                arguments: {
+                                                              'person_name': Translit().toTranslit(
+                                                                  source: state
+                                                                      .movie
+                                                                      .actors[
+                                                                          index]
+                                                                      .name
+                                                                      .replaceAll(
+                                                                          "Дж",
+                                                                          "Ж")
+                                                                      .replaceAll(
+                                                                          "дж",
+                                                                          "ж")),
+                                                              'person_id': state
+                                                                  .movie
+                                                                  .actors[index]
+                                                                  .id,
+                                                              'person_image':
+                                                                  state
+                                                                      .movie
+                                                                      .actors[
+                                                                          index]
+                                                                      .image,
+                                                            });
                                                       },
                                                     ),
                                                   ),
@@ -2769,59 +1670,4 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       }),
     );
   }
-}
-
-Widget buildRating(double rating) {
-  int remainingInt = 5;
-  if (rating > 0 && rating <= 2) {
-    remainingInt = 1;
-  } else if (rating > 2 && rating <= 4) {
-    remainingInt = 2;
-  } else if (rating > 4 && rating <= 6) {
-    remainingInt = 3;
-  } else if (rating > 6 && rating <= 7.9) {
-    remainingInt = 4;
-  } else {
-    remainingInt = 5;
-  }
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      for (int i = 0; i < remainingInt; i++) ...[
-        Icon(
-          Icons.star,
-          color: HexColor('#F2C94C'),
-          size: 20,
-        )
-      ],
-      for (int i = 0; i < 5 - remainingInt; i++) ...[
-        Icon(
-          Icons.star_border,
-          color: HexColor('#F2C94C'),
-          size: 20,
-        )
-      ],
-    ],
-  );
-}
-
-class FadingEffect extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    Rect rect =
-        Rect.fromPoints(Offset(0, 0), Offset(size.width, size.height + 25));
-    LinearGradient lg = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        Colors.transparent,
-        Colors.black,
-      ],
-    );
-    Paint paint = Paint()..shader = lg.createShader(rect);
-    canvas.drawRect(rect, paint);
-  }
-
-  @override
-  bool shouldRepaint(FadingEffect linePainter) => false;
 }

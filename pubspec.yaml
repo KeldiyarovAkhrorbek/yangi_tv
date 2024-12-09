@@ -85,6 +85,8 @@ dependencies:
   process_run: ^1.2.2+1
   jailbreak_root_detection: ^1.1.5
   root_jailbreak_sniffer: ^1.0.9
+  workmanager: ^0.5.2
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -142,6 +144,7 @@ flutter:
     - assets/images/landing/images/
     - assets/images/
     - assets/numbers/
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

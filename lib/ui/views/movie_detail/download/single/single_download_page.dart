@@ -47,9 +47,9 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
     image = args['image'];
     tariff = args['tariff'];
     singleMovieUrl = args['singleMovieUrl'];
-    timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
-    });
+    // timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
+    //   if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
+    // });
   }
 
   @override
@@ -469,7 +469,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
         debugPrint(state.toString());
       },
       builder: (context, state) {
-        if (state is DownloadSuccessState) {
+        if (state is DownloadState) {
           return SafeArea(
             child: Scaffold(
               backgroundColor: Colors.black,
@@ -653,7 +653,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
   }
 
   Widget buildQuality(BuildContext context, String qualityText, String url,
-      DownloadSuccessState state) {
+      DownloadState state) {
     var indexTask = -1;
     indexTask = state.tasks.indexWhere((dbTask) => dbTask.url == url);
     return Container(

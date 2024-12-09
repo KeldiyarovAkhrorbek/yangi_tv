@@ -16,6 +16,7 @@ class MovieFull {
   String? youtubeTrailer;
   String? rating;
   String? duration;
+  String? access_download;
   String? age;
   String? type;
   Reactions reactions;
@@ -55,6 +56,7 @@ class MovieFull {
     required this.is_favorite,
     required this.is_comments,
     required this.voice_mode,
+    required this.access_download,
   });
 
   factory MovieFull.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,7 @@ class MovieFull {
           List<Country>.from(json['countries'].map((x) => Country.fromJson(x))),
       trailer: json['trailer'],
       youtubeTrailer: json['youtube_trailer'],
+      access_download: json['access_download'],
       rating: json['rating'],
       duration: json['duration'],
       age: json['age'],

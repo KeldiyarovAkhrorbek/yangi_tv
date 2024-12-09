@@ -43,9 +43,9 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['name'];
     image = args['image'];
-    timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
-    });
+    // timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
+    //   if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
+    // });
   }
 
   @override
@@ -463,196 +463,193 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
       bloc: getIt<DownloadBloc>(),
       listener: (context, state) {},
       builder: (context, state) {
-        if (state is DownloadSuccessState) {
-          qualities = [];
-          state.tasks.forEach((element) {
-            if (element.movieName == movie_name) {
-              qualities.add(element);
-            }
-          });
-        }
+        qualities = [];
+        state.tasks.forEach((element) {
+          if (element.movieName == movie_name) {
+            qualities.add(element);
+          }
+        });
 
-        if (state is DownloadSuccessState)
-          return Scaffold(
-            backgroundColor: Colors.black,
-            extendBodyBehindAppBar: true,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(45),
-              child: AppBar(
-                automaticallyImplyLeading: false,
-                surfaceTintColor: Colors.transparent,
-                backgroundColor: Colors.transparent,
-                centerTitle: true,
-                iconTheme: IconThemeData(
-                  color: Colors.white,
+        return Scaffold(
+          backgroundColor: Colors.black,
+          extendBodyBehindAppBar: true,
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(45),
+            child: AppBar(
+              automaticallyImplyLeading: false,
+              surfaceTintColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+              centerTitle: true,
+              iconTheme: IconThemeData(
+                color: Colors.white,
+              ),
+              leading: Padding(
+                padding: EdgeInsets.only(
+                  left: 10.0,
+                  right: 10.0,
+                  top: 6.0,
+                  bottom: 6.0,
                 ),
-                leading: Padding(
-                  padding: EdgeInsets.only(
-                    left: 10.0,
-                    right: 10.0,
-                    top: 6.0,
-                    bottom: 6.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(
+                      15,
+                    ),
                   ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(
                         15,
                       ),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(
-                          15,
-                        ),
-                        onTap: () {
-                          Navigator.of(context).maybePop();
-                        },
-                        child: Center(
-                          child: Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 18,
-                          ),
+                      onTap: () {
+                        Navigator.of(context).maybePop();
+                      },
+                      child: Center(
+                        child: Icon(
+                          Icons.arrow_back_ios_new,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                flexibleSpace: AnimatedContainer(
-                  duration: Duration(milliseconds: 500),
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: show ? Colors.black : Colors.transparent,
-                ),
-                title: Text(
-                  movie_name,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.ubuntu(
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
                     ),
                   ),
                 ),
               ),
+              flexibleSpace: AnimatedContainer(
+                duration: Duration(milliseconds: 500),
+                width: double.infinity,
+                height: double.infinity,
+                color: show ? Colors.black : Colors.transparent,
+              ),
+              title: Text(
+                movie_name,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.ubuntu(
+                  textStyle: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
             ),
-            body: Stack(
-              children: [
-                Image.asset(
-                  'assets/images/profile_background.png',
-                  height: double.infinity,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-                Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(
-                          0.8,
-                        ),
-                        Colors.black,
-                      ],
-                    ),
-                  ),
-                ),
-                if (qualities.isNotEmpty)
-                  SingleChildScrollView(
-                    controller: scrollController,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 100,
-                        ),
-                        Text(
-                          "Yuklangan sifatni tanlang:",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.roboto(
-                            textStyle: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        ListView.builder(
-                          padding: EdgeInsets.zero,
-                          physics: PageScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return buildQuality(context,
-                                qualities[index % qualities.length], state);
-                          },
-                          shrinkWrap: true,
-                          itemCount: qualities.length,
-                        )
-                      ],
-                    ),
-                  ),
-                if (qualities.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                            'assets/icons/download/ic_empty_download.svg'),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          "Sizda hali yuklab olingan\nsifat mavjud emas!",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.montserrat(
-                            textStyle: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (isTariffLoading)
-                  Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                      ).blurred(
-                        blurColor: Colors.black,
-                        blur: 10,
+          ),
+          body: Stack(
+            children: [
+              Image.asset(
+                'assets/images/profile_background.png',
+                height: double.infinity,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+              Container(
+                height: double.infinity,
+                width: double.infinity,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(
+                        0.8,
                       ),
-                      Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
+                      Colors.black,
+                    ],
+                  ),
+                ),
+              ),
+              if (qualities.isNotEmpty)
+                SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 100,
+                      ),
+                      Text(
+                        "Yuklangan sifatni tanlang:",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.roboto(
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      ListView.builder(
+                        padding: EdgeInsets.zero,
+                        physics: PageScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return buildQuality(context,
+                              qualities[index % qualities.length], state);
+                        },
+                        shrinkWrap: true,
+                        itemCount: qualities.length,
+                      )
+                    ],
+                  ),
+                ),
+              if (qualities.isEmpty)
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                          'assets/icons/download/ic_empty_download.svg'),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Sizda hali yuklab olingan\nsifat mavjud emas!",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ],
-                  )
-              ],
-            ),
-          );
+                  ),
+                ),
+              if (isTariffLoading)
+                Stack(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                    ).blurred(
+                      blurColor: Colors.black,
+                      blur: 10,
+                    ),
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                )
+            ],
+          ),
+        );
         return Container();
       },
     );
   }
 
   Widget buildQuality(
-      BuildContext context, DatabaseTask task, DownloadSuccessState state) {
+      BuildContext context, DatabaseTask task, DownloadState state) {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       child: Stack(

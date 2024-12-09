@@ -38,10 +38,10 @@ class MovieItem extends StatelessWidget {
                   child: HeroMode(
                     enabled: isHero,
                     child: Hero(
-                      tag: movie.poster + "${movie.id}" + "main",
+                      tag: (movie.poster ?? '') + "${movie.id}" + "main",
                       transitionOnUserGestures: true,
                       child: CustomImageLoader(
-                        imageUrl: movie.poster,
+                        imageUrl: movie.poster ?? '',
                         width: 128,
                         height: 190,
                         fit: BoxFit.cover,
@@ -68,7 +68,7 @@ class MovieItem extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            movie.tariff,
+                            movie.tariff ?? 'PREMIUM',
                             style: GoogleFonts.roboto(
                               textStyle: TextStyle(
                                 color: movie.tariff == 'PREMIUM'
@@ -140,7 +140,7 @@ class MovieItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          movie.name,
+                          movie.name ?? '',
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

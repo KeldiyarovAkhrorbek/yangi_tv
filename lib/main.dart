@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:app_settings/app_settings.dart';
@@ -9,11 +11,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_events.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
+import 'package:yangi_tv_new/helpers/encryptor/FileEncryptor.dart';
 import 'package:yangi_tv_new/ui/views/auth/change_username_page.dart';
 import 'package:yangi_tv_new/ui/views/auth/phone_number_page.dart';
 import 'package:yangi_tv_new/ui/views/auth/session_delete_page.dart';
@@ -50,23 +55,25 @@ import 'bloc/blocs/app_blocs.dart';
 import 'bloc/repos/mainrepository.dart';
 import 'firebase_options.dart';
 import 'injection_container.dart';
+import 'models/db/database_task.dart';
 import 'ui/views/movie_detail/watch/multi/seasons_page.dart';
 import 'ui/views/movie_detail/watch/multi/video_player_page_multi.dart';
 import 'ui/views/movie_detail/watch/single/video_player_page_single.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 
-late FlutterLocalNotificationsPlugin flutternotifications;
+final FlutterLocalNotificationsPlugin flutternotifications =
+    FlutterLocalNotificationsPlugin();
 late AndroidNotificationChannel channel;
-late FirebaseMessaging fireMessaging;
+
 bool isNotificationInit = false;
-late String token;
-late String initialMessage;
-late String message;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await dotenv.load();
+
+  ///notification
   permission_handler.PermissionStatus status =
       await Permission.notification.request();
   if (!status.isGranted && Platform.isAndroid) {
@@ -87,8 +94,21 @@ Future<void> main() async {
     provisional: false,
     sound: true,
   );
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
   await FirebaseMessaging.instance.setAutoInitEnabled(true);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onMessage.listen(
+    (message) async {
+      await _firebaseMessagingBackgroundHandler(message);
+    },
+  );
+
+  ///background downloader
 
   // PackageInfo packageInfo = await PackageInfo.fromPlatform();
   // String? databaseCleared50 = await SecureStorage().readSecureData('cleared50');
@@ -116,8 +136,78 @@ Future<void> main() async {
 
   setup();
 
+  manageDownloads();
+
+  // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+
   runApp(const MyApp());
 }
+
+void manageDownloads() async {
+  DownloadBloc downloadBloc = getIt<DownloadBloc>();
+  var records = await FileDownloader().database.allRecords();
+  List<DatabaseTask> all_tasks = [];
+  records.forEach((record) async {
+    Map<String, dynamic> meta_data = jsonDecode(record.task.metaData);
+    if (record.status == TaskStatus.canceled) {
+      await FileDownloader().database.deleteRecordWithId(record.task.taskId);
+    } else {
+      String filePath = await record.task.filePath();
+      all_tasks.add(DatabaseTask(
+        taskId: record.task.taskId,
+        movieName: meta_data['movie_name'],
+        name: meta_data['name'],
+        displayName: record.task.displayName,
+        url: record.task.url,
+        size: meta_data['size'],
+        image: meta_data['image'],
+        tariff: meta_data['tariff'],
+        networkSpeed: 0,
+        progress: record.progress,
+        status: record.status,
+        remainingTime: 0,
+        is_multi: meta_data['is_multi'],
+        seasonName: meta_data['season_name'],
+        path: filePath,
+      ));
+    }
+  });
+  downloadBloc.add(SetTasksEvent(all_tasks));
+
+  FileDownloader().registerCallbacks(
+    taskProgressCallback: (update) async {
+      downloadBloc.add(DownloadTaskProgressUpdateEvent(update));
+    },
+    taskStatusCallback: (update) async {
+      downloadBloc.add(DownloadTaskStatusUpdateEvent(update));
+      // if (update.status == TaskStatus.complete) {
+      //   var path = await update.task.filePath();
+      //   Workmanager().registerOneOffTask(
+      //     'encrypt_${update.task.taskId}',
+      //     'encryptTask',
+      //     inputData: {
+      //       'filePath': path,
+      //       'displayName': update.task.displayName,
+      //     },
+      //   );
+      // }
+    },
+  );
+}
+
+// void callbackDispatcher() {
+//   Workmanager().executeTask((task, inputData) async {
+//     if (task == 'encryptTask') {
+//       final filePath = inputData?['filePath'] as String?;
+//       if (filePath != null) {
+//         await FileEncryptor.encryptFile(
+//             File(filePath), inputData?['displayName']);
+//       }
+//       return Future.value(true);
+//     }
+//     return Future.value(false);
+//   });
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -448,12 +538,6 @@ Future<void> setupFlutterNotifications() async {
       );
 
   isNotificationInit = true;
-
-  await fireMessaging.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
 }
 
 void showNotification(RemoteMessage message) async {

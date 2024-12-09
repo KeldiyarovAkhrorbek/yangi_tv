@@ -14,6 +14,7 @@ import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/helpers/constants.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/movie_detail_page.dart';
 import 'package:yangi_tv_new/ui/views/story/story_watch_page.dart';
+import 'package:yangi_tv_new/ui/widgets/dialog/tryAgainDialog.dart';
 import 'package:yangi_tv_new/ui/widgets/genre_item.dart';
 import 'package:yangi_tv_new/ui/widgets/loading/movie_item_loading.dart';
 import 'package:yangi_tv_new/ui/widgets/main_category_item.dart';
@@ -35,121 +36,6 @@ class _MainPageState extends State<MainPage>
   final successController = ScrollController();
   final loadingController = ScrollController();
 
-  void openTryAgainDialog(VoidCallback tryAgainPressed) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: true,
-      builder: (_) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(),
-                Stack(
-                  children: [
-                    Blur(
-                      blur: 7,
-                      blurColor: HexColor('#4D4D4D').withOpacity(1),
-                      child: Container(
-                        width: double.infinity,
-                        child: SizedBox(
-                          height: 220,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          100,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          SvgPicture.asset(
-                            'assets/icons/auth/ic_dangerous.svg',
-                            height: 50,
-                            width: 50,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            "Ma'lumotni yuklab bo'lmadi,\niltimos, qayta urining.",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.montserrat(
-                              textStyle: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 50.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                RawMaterialButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10),
-                                    ),
-                                  ),
-                                  fillColor: HexColor('#FF4747'),
-                                  onPressed: () {
-                                    tryAgainPressed();
-                                    Navigator.of(context).maybePop();
-                                  },
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 20.0),
-                                    child: Text(
-                                      'Qayta urinish',
-                                      style: GoogleFonts.inter(
-                                        textStyle: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-                SizedBox(),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -158,7 +44,7 @@ class _MainPageState extends State<MainPage>
             ..add(GetMainEvent()),
       child: BlocConsumer<MainBloc, MainState>(listener: (context, state) {
         if (state is MainErrorState) {
-          openTryAgainDialog(() {
+          openTryAgainDialog(context, () {
             BlocProvider.of<MainBloc>(context)..add(GetMainEvent());
           });
         }
@@ -180,7 +66,7 @@ class _MainPageState extends State<MainPage>
             backgroundColor: Colors.black,
             extendBody: true,
             appBar: PreferredSize(
-              preferredSize: Size.fromHeight(42),
+              preferredSize: Size.fromHeight(35),
               child: AppBar(
                 backgroundColor: Colors.black,
                 centerTitle: true,
@@ -379,9 +265,7 @@ class _MainPageState extends State<MainPage>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: 10,
-                        ),
+
                         if (state.stories.isNotEmpty)
                           Container(
                             height: 100,

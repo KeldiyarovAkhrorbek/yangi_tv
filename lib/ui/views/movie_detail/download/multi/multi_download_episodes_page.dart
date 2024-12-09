@@ -540,41 +540,41 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
           builder: (context, state) {
             return Builder(
               builder: (_) {
-                if (state is DownloadSuccessState)
-                  return Stack(
-                    children: [
-                      Image.asset(
-                        'assets/images/profile_background.png',
-                        height: double.infinity,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                      Container(
-                        height: double.infinity,
-                        width: double.infinity,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withOpacity(
-                                0.8,
-                              ),
-                              Colors.black,
-                            ],
-                          ),
+                return Stack(
+                  children: [
+                    Image.asset(
+                      'assets/images/profile_background.png',
+                      height: double.infinity,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                    Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(
+                              0.8,
+                            ),
+                            Colors.black,
+                          ],
                         ),
                       ),
-                      SingleChildScrollView(
-                        controller: scrollController,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 60,
-                            ),
-                            Text(
+                    ),
+                    ListView.builder(
+                      controller: scrollController,
+                      padding: EdgeInsets.only(top: 60),
+                      shrinkWrap: true,
+                      physics: PageScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        if(index == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10.0),
+                            child: Text(
                               "${season}dan yuklab olish uchun qismni tanlang:",
                               textAlign: TextAlign.center,
                               style: GoogleFonts.ubuntu(
@@ -585,44 +585,31 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
+                          );
+                        }
+                        return buildEpisode(context, episodes[index - 1], state);
+                      },
+                      itemCount: episodes.length + 1,
+                    ),
+                    if (isTariffLoading)
+                      Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                          ).blurred(
+                            blurColor: Colors.black,
+                            blur: 10,
+                          ),
+                          Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
                             ),
-                            ListView.builder(
-                              padding: EdgeInsets.zero,
-                              shrinkWrap: true,
-                              physics: PageScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return buildEpisode(
-                                    context, episodes[index], state);
-                              },
-                              itemCount: episodes.length,
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (isTariffLoading)
-                        Stack(
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                            ).blurred(
-                              blurColor: Colors.black,
-                              blur: 10,
-                            ),
-                            Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                    ],
-                  );
+                          ),
+                        ],
+                      )
+                  ],
+                );
                 return Container();
               },
             );
@@ -633,7 +620,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
   }
 
   Widget buildEpisode(
-      BuildContext context, Episode episode, DownloadSuccessState state) {
+      BuildContext context, Episode episode, DownloadState state) {
     var indexTask = -1;
     indexTask = state.tasks
         .indexWhere((dbTask) => dbTask.url == decryptArray(episode.file!));
