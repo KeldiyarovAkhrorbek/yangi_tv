@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_event.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_state.dart';
+import 'package:yangi_tv_new/injection_container.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/download/multi/multi_download_episodes_page.dart';
 
 import '../../../../../models/season.dart';
@@ -21,11 +25,6 @@ class _MultiDownloadSeasonPageState extends State<MultiDownloadSeasonPage> {
   String image = '';
   String tariff = '';
   List<Season> seasons = [];
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void didChangeDependencies() {
@@ -118,79 +117,79 @@ class _MultiDownloadSeasonPageState extends State<MultiDownloadSeasonPage> {
           ),
         ),
         body: BlocConsumer<DownloadBloc, DownloadState>(
+          bloc: getIt<DownloadBloc>(),
           listener: (context, state) {},
           builder: (context, state) {
             return Builder(
               builder: (_) {
-                if (state is DownloadState)
-                  return Stack(
-                    children: [
-                      Image.asset(
-                        'assets/images/profile_background.png',
-                        height: double.infinity,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                      Container(
-                        height: double.infinity,
-                        width: double.infinity,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withOpacity(
-                                0.8,
-                              ),
-                              Colors.black,
-                            ],
-                          ),
-                        ),
-                      ),
-                      SingleChildScrollView(
-                        controller: scrollController,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 60,
+                return Stack(
+                  children: [
+                    Image.asset(
+                      'assets/images/profile_background.png',
+                      height: double.infinity,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                    Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(
+                              0.8,
                             ),
-                            Text(
-                              "Yuklab olish uchun faslni tanlang:",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.ubuntu(
-                                textStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              padding: EdgeInsets.zero,
-                              physics: PageScrollPhysics(),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
-                                mainAxisExtent: 120,
-                              ),
-                              itemBuilder: (context, index) {
-                                return seasonItem(seasons[index]);
-                              },
-                              itemCount: seasons.length,
-                            ),
+                            Colors.black,
                           ],
                         ),
                       ),
-                    ],
-                  );
+                    ),
+                    SingleChildScrollView(
+                      controller: scrollController,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 60,
+                          ),
+                          Text(
+                            "Yuklab olish uchun faslni tanlang:",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.ubuntu(
+                              textStyle: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            physics: PageScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10,
+                              mainAxisExtent: 120,
+                            ),
+                            itemBuilder: (context, index) {
+                              return seasonItem(seasons[index]);
+                            },
+                            itemCount: seasons.length,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
                 return Container();
               },
             );

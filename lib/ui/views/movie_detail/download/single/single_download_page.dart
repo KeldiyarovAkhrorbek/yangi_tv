@@ -13,6 +13,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_events.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_event.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_state.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:yangi_tv_new/helpers/decryptor.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
@@ -36,7 +39,6 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
   String image = '';
   String tariff = '';
   late SingleMovieUrl singleMovieUrl;
-  Timer? timer;
 
   @override
   void didChangeDependencies() {
@@ -47,16 +49,6 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
     image = args['image'];
     tariff = args['tariff'];
     singleMovieUrl = args['singleMovieUrl'];
-    // timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-    //   if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
-    // });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (timer != null) timer!.cancel();
-    timer = null;
   }
 
   void openPauseDialog(BuildContext context, String taskId, String name) {
@@ -465,187 +457,186 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
       setState(() {});
     });
     return BlocConsumer<DownloadBloc, DownloadState>(
+      bloc: getIt<DownloadBloc>(),
       listener: (context, state) {
         debugPrint(state.toString());
       },
       builder: (context, state) {
-        if (state is DownloadState) {
-          return SafeArea(
-            child: Scaffold(
-              backgroundColor: Colors.black,
-              extendBodyBehindAppBar: true,
-              appBar: PreferredSize(
-                preferredSize: Size.fromHeight(45),
-                child: AppBar(
-                  automaticallyImplyLeading: false,
-                  surfaceTintColor: Colors.transparent,
-                  backgroundColor: Colors.transparent,
-                  centerTitle: true,
-                  iconTheme: IconThemeData(
-                    color: Colors.white,
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.black,
+            extendBodyBehindAppBar: true,
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(45),
+              child: AppBar(
+                automaticallyImplyLeading: false,
+                surfaceTintColor: Colors.transparent,
+                backgroundColor: Colors.transparent,
+                centerTitle: true,
+                iconTheme: IconThemeData(
+                  color: Colors.white,
+                ),
+                leading: Padding(
+                  padding: EdgeInsets.only(
+                    left: 10.0,
+                    right: 10.0,
+                    top: 6.0,
+                    bottom: 6.0,
                   ),
-                  leading: Padding(
-                    padding: EdgeInsets.only(
-                      left: 10.0,
-                      right: 10.0,
-                      top: 6.0,
-                      bottom: 6.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(
+                        15,
+                      ),
                     ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
                         borderRadius: BorderRadius.circular(
                           15,
                         ),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(
-                            15,
-                          ),
-                          onTap: () {
-                            Navigator.of(context).maybePop();
-                          },
-                          child: Center(
-                            child: Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Colors.white,
-                              size: 18,
-                            ),
+                        onTap: () {
+                          Navigator.of(context).maybePop();
+                        },
+                        child: Center(
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Colors.white,
+                            size: 18,
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  flexibleSpace: AnimatedContainer(
-                    duration: Duration(milliseconds: 500),
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: show ? Colors.black : Colors.transparent,
-                  ),
-                  title: Text(
-                    movie_name,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.roboto(
-                      textStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
                       ),
                     ),
                   ),
                 ),
-              ),
-              body: Stack(
-                children: [
-                  Image.asset(
-                    'assets/images/profile_background.png',
-                    height: double.infinity,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(
-                            0.8,
-                          ),
-                          Colors.black,
-                        ],
-                      ),
+                flexibleSpace: AnimatedContainer(
+                  duration: Duration(milliseconds: 500),
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: show ? Colors.black : Colors.transparent,
+                ),
+                title: Text(
+                  movie_name,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.roboto(
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
                     ),
                   ),
-                  SingleChildScrollView(
-                    controller: scrollController,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 60,
-                        ),
-                        Text(
-                          "Yuklab olish uchun sifatni tanlang:",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.roboto(
-                            textStyle: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        ListView(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          physics: PageScrollPhysics(),
-                          children: [
-                            if (singleMovieUrl.resolution360A != null)
-                              buildQuality(
-                                  context,
-                                  '360p',
-                                  decryptArray(singleMovieUrl.resolution360A!),
-                                  state),
-                            if (singleMovieUrl.resolution480A != null)
-                              buildQuality(
-                                  context,
-                                  '480p',
-                                  decryptArray(singleMovieUrl.resolution480A!),
-                                  state),
-                            if (singleMovieUrl.resolution720A != null)
-                              buildQuality(
-                                  context,
-                                  '720p',
-                                  decryptArray(singleMovieUrl.resolution720A!),
-                                  state),
-                            if (singleMovieUrl.resolution1080A != null)
-                              buildQuality(
-                                  context,
-                                  '1080p',
-                                  decryptArray(singleMovieUrl.resolution1080A!),
-                                  state),
-                            if (singleMovieUrl.resolution2160A != null)
-                              buildQuality(
-                                  context,
-                                  '4k',
-                                  decryptArray(singleMovieUrl.resolution2160A!),
-                                  state),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (isTariffLoading)
-                    Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                        ).blurred(
-                          blurColor: Colors.black,
-                          blur: 10,
-                        ),
-                        Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    )
-                ],
+                ),
               ),
             ),
-          );
-        }
+            body: Stack(
+              children: [
+                Image.asset(
+                  'assets/images/profile_background.png',
+                  height: double.infinity,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+                Container(
+                  height: double.infinity,
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(
+                          0.8,
+                        ),
+                        Colors.black,
+                      ],
+                    ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 60,
+                      ),
+                      Text(
+                        "Yuklab olish uchun sifatni tanlang:",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.roboto(
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      ListView(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        physics: PageScrollPhysics(),
+                        children: [
+                          if (singleMovieUrl.resolution360A != null)
+                            buildQuality(
+                                context,
+                                '360p',
+                                decryptArray(singleMovieUrl.resolution360A!),
+                                state),
+                          if (singleMovieUrl.resolution480A != null)
+                            buildQuality(
+                                context,
+                                '480p',
+                                decryptArray(singleMovieUrl.resolution480A!),
+                                state),
+                          if (singleMovieUrl.resolution720A != null)
+                            buildQuality(
+                                context,
+                                '720p',
+                                decryptArray(singleMovieUrl.resolution720A!),
+                                state),
+                          if (singleMovieUrl.resolution1080A != null)
+                            buildQuality(
+                                context,
+                                '1080p',
+                                decryptArray(singleMovieUrl.resolution1080A!),
+                                state),
+                          if (singleMovieUrl.resolution2160A != null)
+                            buildQuality(
+                                context,
+                                '4k',
+                                decryptArray(singleMovieUrl.resolution2160A!),
+                                state),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (isTariffLoading)
+                  Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                      ).blurred(
+                        blurColor: Colors.black,
+                        blur: 10,
+                      ),
+                      Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  )
+              ],
+            ),
+          ),
+        );
 
         return Container();
       },

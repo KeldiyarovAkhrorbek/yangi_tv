@@ -1,12 +1,10 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
 import 'package:yangi_tv_new/injection_container.dart';
 import 'package:yangi_tv_new/ui/views/profile/downloads/multi/downloaded_seasons_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/downloads/single/downloaded_qualities_page.dart';

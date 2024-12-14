@@ -4,19 +4,16 @@ import 'dart:io';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:blur/blur.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_event.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_state.dart';
 import 'package:yangi_tv_new/bloc/repos/mainrepository.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
 import 'package:yangi_tv_new/injection_container.dart';
-
-import '../../../../../bloc/blocs/app_events.dart';
 import '../../../../../helpers/color_changer.dart';
 import '../../../../../models/db/database_task.dart';
 import '../../../movie_detail/watch/offline/video_player_page_offline.dart';
@@ -34,7 +31,6 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
   String movie_name = '';
   String image = '';
   List<DatabaseTask> qualities = [];
-  Timer? timer;
 
   @override
   void didChangeDependencies() {
@@ -43,16 +39,6 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     movie_name = args['name'];
     image = args['image'];
-    // timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-    //   if (mounted) getIt<DownloadBloc>().add(UpdateDownloadsEvent());
-    // });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (timer != null) timer!.cancel();
-    timer = null;
   }
 
   void openPauseDialog(BuildContext context, String taskId, String name) {

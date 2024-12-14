@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:yangi_tv_new/helpers/secure_storage.dart';
+import 'package:yangi_tv_new/helpers/test_token_enum.dart';
 import 'package:yangi_tv_new/models/active_tariff.dart';
 import 'package:yangi_tv_new/models/merchant_data_click.dart';
 import 'package:yangi_tv_new/models/story.dart';
@@ -57,6 +60,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -72,6 +76,7 @@ class MainRepository {
         options: Options(
           headers: {
             'Authorization': 'Bearer ${token}',
+            'Accept': 'application/json',
           },
         ),
       );
@@ -95,6 +100,7 @@ class MainRepository {
         options: Options(
           headers: {
             'Authorization': 'Bearer ${token}',
+            'Accept': 'application/json',
           },
         ),
       );
@@ -118,6 +124,7 @@ class MainRepository {
         options: Options(
           headers: {
             'Authorization': 'Bearer ${token}',
+            'Accept': 'application/json',
           },
         ),
       );
@@ -149,6 +156,7 @@ class MainRepository {
         options: Options(
           headers: {
             'Authorization': 'Bearer ${token}',
+            'Accept': 'application/json',
           },
         ),
       );
@@ -175,6 +183,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -192,6 +201,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -208,6 +218,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -224,6 +235,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -241,6 +253,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -263,6 +276,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -280,6 +294,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -293,10 +308,34 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
     return Profile.fromJson(response.data['data']);
+  }
+
+  Future<TestTokenEnum> getProfileTesting() async {
+    String? token = await SecureStorage().getToken();
+    final response = await Dio().get(
+      (dotenv.env['BASE_URL'] ?? '') + 'getProfile',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
+        },
+      ),
+    );
+    if (response.statusCode == 401) {
+      return TestTokenEnum.NotAuthenticated;
+    }
+
+    try {
+      var profile = Profile.fromJson(response.data['data']);
+      return TestTokenEnum.Success;
+    } catch (e) {
+      return TestTokenEnum.Error;
+    }
   }
 
   Future<dynamic> getSessions() async {
@@ -306,6 +345,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -319,6 +359,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -341,6 +382,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -354,6 +396,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -376,6 +419,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -392,6 +436,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -408,6 +453,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -441,6 +487,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -460,6 +507,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -476,6 +524,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -492,6 +541,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -509,6 +559,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -526,6 +577,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -567,6 +619,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -583,6 +636,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -600,6 +654,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -613,6 +668,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -626,6 +682,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -642,6 +699,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -659,6 +717,7 @@ class MainRepository {
       options: Options(
         headers: {
           'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
         },
       ),
     );

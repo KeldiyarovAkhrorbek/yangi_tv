@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:app_settings/app_settings.dart';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,10 +14,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:workmanager/workmanager.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_events.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_event.dart';
+import 'package:yangi_tv_new/bloc/blocs/testtoken/test_token_bloc.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
-import 'package:yangi_tv_new/helpers/encryptor/FileEncryptor.dart';
+import 'package:yangi_tv_new/models/db/database_task.dart';
 import 'package:yangi_tv_new/ui/views/auth/change_username_page.dart';
 import 'package:yangi_tv_new/ui/views/auth/phone_number_page.dart';
 import 'package:yangi_tv_new/ui/views/auth/session_delete_page.dart';
@@ -34,6 +34,7 @@ import 'package:yangi_tv_new/ui/views/movie_detail/download/multi/multi_download
 import 'package:yangi_tv_new/ui/views/movie_detail/download/single/single_download_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/movie_detail_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/screenshot_page.dart';
+import 'package:yangi_tv_new/ui/views/movie_detail/watch/embed/video_embed_watch_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/watch/offline/video_player_page_offline.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/youtube_player_page.dart';
 import 'package:yangi_tv_new/ui/views/navigation/navigation_page.dart';
@@ -55,7 +56,6 @@ import 'bloc/blocs/app_blocs.dart';
 import 'bloc/repos/mainrepository.dart';
 import 'firebase_options.dart';
 import 'injection_container.dart';
-import 'models/db/database_task.dart';
 import 'ui/views/movie_detail/watch/multi/seasons_page.dart';
 import 'ui/views/movie_detail/watch/multi/video_player_page_multi.dart';
 import 'ui/views/movie_detail/watch/single/video_player_page_single.dart';
@@ -138,8 +138,6 @@ Future<void> main() async {
 
   manageDownloads();
 
-  // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-
   runApp(const MyApp());
 }
 
@@ -194,20 +192,6 @@ void manageDownloads() async {
     },
   );
 }
-
-// void callbackDispatcher() {
-//   Workmanager().executeTask((task, inputData) async {
-//     if (task == 'encryptTask') {
-//       final filePath = inputData?['filePath'] as String?;
-//       if (filePath != null) {
-//         await FileEncryptor.encryptFile(
-//             File(filePath), inputData?['displayName']);
-//       }
-//       return Future.value(true);
-//     }
-//     return Future.value(false);
-//   });
-// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -495,6 +479,13 @@ class MyApp extends StatelessWidget {
                       create: (context) => MainRepository(),
                       child: OrdersPage()),
                   settings: settings);
+
+            case VideoPlayerPageEmbed.routeName:
+              return CupertinoPageRoute(
+                  builder: (_) => RepositoryProvider(
+                      create: (context) => MainRepository(),
+                      child: VideoPlayerPageEmbed()),
+                  settings: settings);
             default:
               return CupertinoPageRoute(
                   builder: (_) => RepositoryProvider(
@@ -518,7 +509,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage? message) async {
 Future<void> setupFlutterNotifications() async {
   await FlutterLocalNotificationsPlugin().initialize(
     const InitializationSettings(
-        android: AndroidInitializationSettings('ic_notification_default')),
+      android: AndroidInitializationSettings('ic_notification_default'),
+      iOS: DarwinInitializationSettings(),
+    ),
   );
 
   if (isNotificationInit) {
@@ -533,9 +526,7 @@ Future<void> setupFlutterNotifications() async {
   await flutternotifications
       .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()!
-      .createNotificationChannel(
-        channel,
-      );
+      .createNotificationChannel(channel);
 
   isNotificationInit = true;
 }

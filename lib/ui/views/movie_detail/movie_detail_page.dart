@@ -9,11 +9,13 @@ import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
 import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:yangi_tv_new/helpers/custom_image_loader.dart';
+import 'package:yangi_tv_new/helpers/decryptor.dart';
 import 'package:yangi_tv_new/ui/views/comment/comment_page.dart';
 import 'package:yangi_tv_new/ui/views/genre_detail/genre_detail_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/download/multi/multi_download_season_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/download/single/single_download_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/screenshot_page.dart';
+import 'package:yangi_tv_new/ui/views/movie_detail/watch/embed/video_embed_watch_page.dart';
 import 'package:yangi_tv_new/ui/views/movie_detail/youtube_player_page.dart';
 import 'package:yangi_tv_new/ui/views/person_detail/person_detail_page.dart';
 import 'package:yangi_tv_new/ui/views/profile/tariffs_page/tariffs_page.dart';
@@ -102,25 +104,43 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             openWarningDialog(
               context,
               () {
-                Navigator.of(context)
-                    .pushNamed(VideoPlayerPageSingle.routeName, arguments: {
-                  'url': state.singleMovieURL,
-                  'movie_name': state.movie.name,
-                  'image': state.movie.poster,
-                  'movieID': state.movie.id,
-                  'profile_id': state.movie.voice_mode,
-                });
+                if (state.singleMovieURL!.p2p_embed != null) {
+                  Navigator.of(context)
+                      .pushNamed(VideoPlayerPageEmbed.routeName, arguments: {
+                    'url': decryptArray(state.singleMovieURL!.p2p_embed!),
+                    'name': state.movie.name,
+                  });
+                } else {
+                  Navigator.of(context)
+                      .pushNamed(VideoPlayerPageSingle.routeName, arguments: {
+                    'url': state.singleMovieURL,
+                    'movie_name': state.movie.name,
+                    'image': state.movie.poster,
+                    'movieID': state.movie.id,
+                    'profile_id': state.movie.voice_mode,
+                  });
+                }
               },
             );
           } else {
-            Navigator.of(context)
-                .pushNamed(VideoPlayerPageSingle.routeName, arguments: {
-              'url': state.singleMovieURL,
-              'movie_name': state.movie.name,
-              'image': state.movie.poster,
-              'movieID': state.movie.id,
-              'profile_id': state.movie.voice_mode,
-            });
+            if (state.singleMovieURL!.p2p_embed != null) {
+              Navigator.of(context).pushNamed(
+                VideoPlayerPageEmbed.routeName,
+                arguments: {
+                  'url': decryptArray(state.singleMovieURL!.p2p_embed!),
+                  'name': state.movie.name,
+                },
+              );
+            } else {
+              Navigator.of(context)
+                  .pushNamed(VideoPlayerPageSingle.routeName, arguments: {
+                'url': state.singleMovieURL,
+                'movie_name': state.movie.name,
+                'image': state.movie.poster,
+                'movieID': state.movie.id,
+                'profile_id': state.movie.voice_mode,
+              });
+            }
           }
           return;
         }

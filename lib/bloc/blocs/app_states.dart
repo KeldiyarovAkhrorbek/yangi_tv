@@ -101,26 +101,7 @@ class SuccessState extends LoginState {
   List<Object?> get props => [];
 }
 
-///testToken
-///testToken
-///testToken
-@immutable
-abstract class TestState extends Equatable {}
 
-class TestTokenLoadingState extends TestState {
-  @override
-  List<Object?> get props => [];
-}
-
-class TestTokenDoneState extends TestState {
-  final AuthState authState;
-  final String? dangerousAppName;
-
-  TestTokenDoneState({required this.authState, this.dangerousAppName});
-
-  @override
-  List<Object?> get props => [authState];
-}
 
 ///banner and category ///main
 ///banner and category ///main
@@ -698,25 +679,6 @@ class CommentSuccessState extends CommentState {
 class CommentErrorState extends CommentState {
   @override
   List<Object?> get props => [];
-}
-
-///download
-///download
-///download
-class DownloadState extends Equatable {
-  final List<DatabaseTask> tasks;
-  final DateTime time;
-
-  DownloadState({
-    required this.tasks,
-    required this.time,
-  });
-
-  @override
-  List<Object?> get props => [
-        tasks,
-        time,
-      ];
 }
 
 ///collection

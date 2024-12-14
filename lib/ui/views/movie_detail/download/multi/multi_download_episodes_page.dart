@@ -4,19 +4,16 @@ import 'dart:io';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:blur/blur.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_event.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_state.dart';
 import 'package:yangi_tv_new/helpers/decryptor.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
 import 'package:yangi_tv_new/injection_container.dart';
-
-import '../../../../../bloc/blocs/app_events.dart';
 import '../../../../../bloc/repos/mainrepository.dart';
 import '../../../../../helpers/color_changer.dart';
 import '../../../../../models/season.dart';
@@ -37,7 +34,6 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
   String season = '';
   String tariff = '';
   List<Episode> episodes = [];
-  Timer? timer;
 
   @override
   void didChangeDependencies() {
@@ -49,18 +45,6 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
     season = args['season'];
     episodes = args['episodes'];
     tariff = args['tariff'];
-    timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (mounted) {
-        getIt<DownloadBloc>().add(UpdateDownloadsEvent());
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (timer != null) timer!.cancel();
-    timer = null;
   }
 
   void openPauseDialog(BuildContext context, String taskId, String name) {
@@ -536,6 +520,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
           ),
         ),
         body: BlocConsumer<DownloadBloc, DownloadState>(
+          bloc: getIt<DownloadBloc>(),
           listener: (context, state) {},
           builder: (context, state) {
             return Builder(

@@ -1,20 +1,17 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:background_downloader/background_downloader.dart';
 import 'package:blur/blur.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_event.dart';
+import 'package:yangi_tv_new/bloc/blocs/download/download_state.dart';
 import 'package:yangi_tv_new/helpers/filesizeformatter.dart';
 import 'package:yangi_tv_new/injection_container.dart';
-
-import '../../../../../bloc/blocs/app_events.dart';
 import '../../../../../bloc/repos/mainrepository.dart';
 import '../../../../../helpers/color_changer.dart';
 import '../../../../../models/db/database_task.dart';
@@ -35,7 +32,6 @@ class _DownloadedSeasonEpisodesPageState
   String image = '';
   String seasonName = '';
   List<DatabaseTask> tasks = [];
-  Timer? timer;
 
   @override
   void didChangeDependencies() {
@@ -45,17 +41,6 @@ class _DownloadedSeasonEpisodesPageState
     movie_name = args['name'];
     image = args['image'];
     seasonName = args['season'];
-    timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
-      if (mounted)
-        getIt<DownloadBloc>().add(UpdateDownloadsEvent());
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (timer != null) timer!.cancel();
-    timer = null;
   }
 
   void openPauseDialog(BuildContext context, String taskId, String name) {
@@ -463,6 +448,7 @@ class _DownloadedSeasonEpisodesPageState
       setState(() {});
     });
     return BlocConsumer<DownloadBloc, DownloadState>(
+      bloc: getIt<DownloadBloc>(),
       listener: (context, state) {},
       builder: (context, state) {
         return SafeArea(
@@ -557,78 +543,77 @@ class _DownloadedSeasonEpisodesPageState
                     ),
                   ),
                 ),
-                if (state is DownloadState)
-                  Builder(builder: (_) {
-                    tasks = [];
-                    state.tasks.forEach((task) {
-                      if (task.seasonName == seasonName &&
-                          task.movieName == movie_name) {
-                        tasks.add(task);
-                      }
-                    });
-                    if (tasks.isNotEmpty)
-                      return SingleChildScrollView(
-                        controller: scrollController,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 60,
-                            ),
-                            Text(
-                              "${seasonName}dan yuklab olingan qismni tanlang:",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.ubuntu(
-                                textStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            ListView.builder(
-                              padding: EdgeInsets.zero,
-                              shrinkWrap: true,
-                              physics: PageScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return buildEpisode(context,
-                                    tasks[index % tasks.length], state);
-                              },
-                              itemCount: tasks.length,
-                            ),
-                          ],
-                        ),
-                      );
-                    return Container(
-                      width: double.infinity,
-                      height: double.infinity,
+                Builder(builder: (_) {
+                  tasks = [];
+                  state.tasks.forEach((task) {
+                    if (task.seasonName == seasonName &&
+                        task.movieName == movie_name) {
+                      tasks.add(task);
+                    }
+                  });
+                  if (tasks.isNotEmpty)
+                    return SingleChildScrollView(
+                      controller: scrollController,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SvgPicture.asset(
-                              'assets/icons/download/ic_empty_download.svg'),
+                          SizedBox(
+                            height: 60,
+                          ),
+                          Text(
+                            "${seasonName}dan yuklab olingan qismni tanlang:",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.ubuntu(
+                              textStyle: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
                           SizedBox(
                             height: 20,
                           ),
-                          Text(
-                            "Sizda hali yuklab olingan\nqism mavjud emas!",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.montserrat(
-                              textStyle: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                              ),
-                            ),
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: PageScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return buildEpisode(context,
+                                  tasks[index % tasks.length], state);
+                            },
+                            itemCount: tasks.length,
                           ),
                         ],
                       ),
                     );
-                  }),
+                  return Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                            'assets/icons/download/ic_empty_download.svg'),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Sizda hali yuklab olingan\nqism mavjud emas!",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
                 if (isTariffLoading)
                   Stack(
                     children: [

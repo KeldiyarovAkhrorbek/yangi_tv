@@ -19,7 +19,4 @@ class DatabaseMovie {
           name == other.name &&
           image == other.image &&
           is_multi == other.is_multi;
-
-  @override
-  int get hashCode => hashValues(name, image, is_multi);
 }

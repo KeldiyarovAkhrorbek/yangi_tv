@@ -1,27 +1,21 @@
 import 'dart:io';
 
 import 'package:blur/blur.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import 'package:in_app_update/in_app_update.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_blocs.dart';
-import 'package:yangi_tv_new/bloc/blocs/app_states.dart';
+import 'package:yangi_tv_new/bloc/blocs/testtoken/test_token_bloc.dart';
+import 'package:yangi_tv_new/bloc/blocs/testtoken/test_token_event.dart';
+import 'package:yangi_tv_new/bloc/blocs/testtoken/test_token_state.dart';
 import 'package:yangi_tv_new/helpers/auth_state.dart';
 import 'package:yangi_tv_new/helpers/color_changer.dart';
 import 'package:yangi_tv_new/helpers/constants.dart';
-import 'package:yangi_tv_new/injection_container.dart';
 import 'package:yangi_tv_new/ui/views/courses/courses_page.dart';
 import 'package:yangi_tv_new/ui/views/landing/landing_page.dart';
 import 'package:yangi_tv_new/ui/views/navigation/navigation_page.dart';
-
-import '../../../bloc/blocs/app_events.dart';
 import '../../../bloc/repos/mainrepository.dart';
 
 class SplashPage extends StatefulWidget {

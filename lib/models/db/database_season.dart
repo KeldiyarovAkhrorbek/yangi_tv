@@ -19,7 +19,4 @@ class DatabaseSeason {
           movie_name == other.movie_name &&
           image == other.image &&
           season_name == other.season_name;
-
-  @override
-  int get hashCode => hashValues(movie_name, image, season_name);
 }

@@ -4,6 +4,7 @@ class SingleMovieUrl {
   List<String>? resolution720A;
   List<String>? resolution1080A;
   List<String>? resolution2160A;
+  List<String>? p2p_embed;
 
   SingleMovieUrl({
     List<String>? a360A,
@@ -11,11 +12,12 @@ class SingleMovieUrl {
     List<String>? a720A,
     List<String>? a1080A,
     List<String>? a2160A,
+    List<String>? sp2p_embed,
   })  : resolution360A = a360A,
         resolution480A = a480A,
         resolution720A = a720A,
         resolution1080A = a1080A,
-        resolution2160A = a2160A;
+        p2p_embed = sp2p_embed;
 
   factory SingleMovieUrl.fromJson(Map<String, dynamic> json) {
     return SingleMovieUrl(
@@ -29,6 +31,9 @@ class SingleMovieUrl {
           json["1080A"] == "" ? null : List<String>.from(json["1080A"] ?? null),
       a2160A:
           json["2160A"] == "" ? null : List<String>.from(json["2160A"] ?? null),
+      sp2p_embed: json["p2p_embed"] == ""
+          ? null
+          : List<String>.from(json["p2p_embed"] ?? null),
     );
   }
 }

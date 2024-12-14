@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yangi_tv_new/helpers/decryptor.dart';
+import 'package:yangi_tv_new/ui/views/movie_detail/watch/embed/video_embed_watch_page.dart';
 import 'package:yangi_tv_new/ui/widgets/episode_item.dart';
 
 import '../../../../../models/season.dart';
@@ -122,6 +123,18 @@ class _SeasonPageState extends State<SeasonPage> with TickerProviderStateMixin {
                   ),
                   itemBuilder: (context, index) {
                     return EpisodeItem(season.episodes[index], image, () {
+                      if (season.episodes[index].p2p_embed != null) {
+                        Navigator.of(context).pushNamed(
+                            VideoPlayerPageEmbed.routeName,
+                            arguments: {
+                              'url': decryptArray(
+                                  season.episodes[index].p2p_embed!),
+                              'name':
+                                  "$name ${season.name} ${season.episodes[index].name}"
+                            });
+                        return;
+                      }
+
                       if (season.episodes[index].file != null) {
                         Navigator.of(context).pushNamed(
                           VideoPlayerPageMulti.routeName,
