@@ -571,7 +571,7 @@ class _DownloadedQualitiesPageState extends State<DownloadedQualitiesPage> {
                       ),
                       ListView.builder(
                         padding: EdgeInsets.zero,
-                        physics: PageScrollPhysics(),
+                        physics: ScrollPhysics(),
                         itemBuilder: (context, index) {
                           return buildQuality(context,
                               qualities[index % qualities.length], state);

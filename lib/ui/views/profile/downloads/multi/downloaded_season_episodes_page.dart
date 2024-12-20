@@ -577,7 +577,7 @@ class _DownloadedSeasonEpisodesPageState
                           ListView.builder(
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
-                            physics: PageScrollPhysics(),
+                            physics: ScrollPhysics(),
                             itemBuilder: (context, index) {
                               return buildEpisode(context,
                                   tasks[index % tasks.length], state);

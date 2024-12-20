@@ -13,7 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:yangi_tv_new/bloc/blocs/download/download_bloc.dart';
 import 'package:yangi_tv_new/bloc/blocs/download/download_event.dart';
 import 'package:yangi_tv_new/bloc/blocs/testtoken/test_token_bloc.dart';
@@ -72,6 +74,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load();
+
+  MediaKit.ensureInitialized();
+
+  VideoPlayerMediaKit.ensureInitialized(
+      android: true,
+      iOS: false
+  );
 
   ///notification
   permission_handler.PermissionStatus status =

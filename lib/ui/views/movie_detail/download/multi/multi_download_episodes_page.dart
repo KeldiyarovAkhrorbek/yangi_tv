@@ -554,7 +554,7 @@ class _MultiDownloadEpisodesPageState extends State<MultiDownloadEpisodesPage> {
                       controller: scrollController,
                       padding: EdgeInsets.only(top: 60),
                       shrinkWrap: true,
-                      physics: PageScrollPhysics(),
+                      physics: ScrollPhysics(),
                       itemBuilder: (context, index) {
                         if(index == 0) {
                           return Padding(

@@ -579,7 +579,7 @@ class _SingleDownloadPageState extends State<SingleDownloadPage> {
                       ListView(
                         padding: EdgeInsets.zero,
                         shrinkWrap: true,
-                        physics: PageScrollPhysics(),
+                        physics: ScrollPhysics(),
                         children: [
                           if (singleMovieUrl.resolution360A != null)
                             buildQuality(

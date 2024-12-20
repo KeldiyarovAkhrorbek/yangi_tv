@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -76,8 +78,9 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                   () async {
                     if (state is CategoryDetailSuccessState &&
                         !state.isPaginating) {
-                      if (scrollController.position.pixels ==
-                          scrollController.position.maxScrollExtent) {
+                      if (scrollController.position.maxScrollExtent -
+                              scrollController.position.pixels <=
+                          40) {
                         BlocProvider.of<CategoryDetailBloc>(context).add(
                           PaginateCategoryDetailEvent(),
                         );
@@ -100,44 +103,22 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                   );
 
                 if (state is CategoryDetailSuccessState) {
-                  return Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: Column(
-                        children: [
-                          GridView.builder(
-                            physics: PageScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisExtent: 200,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                            ),
-                            itemBuilder: (context, index) =>
-                                MovieItem(state.movies[index]),
-                            itemCount: state.movies.length,
-                          ),
-                          if (state.isPaginating)
-                            SizedBox(
-                              height: 10,
-                            ),
-                          if (state.isPaginating)
-                            Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          if (state.isPaginating)
-                            SizedBox(
-                              height: 10,
-                            ),
-                        ],
-                      ),
+                  return GridView.builder(
+                    controller: scrollController,
+                    physics: ScrollPhysics(),
+                    shrinkWrap: true,
+                    padding: EdgeInsets.only(
+                      top: 10,
                     ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisExtent: 200,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemBuilder: (context, index) =>
+                        MovieItem(state.movies[index]),
+                    itemCount: state.movies.length,
                   );
                 }
                 return Container();

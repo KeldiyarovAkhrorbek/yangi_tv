@@ -6,6 +6,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
+        android:usesCleartextTraffic="true"
         android:label="Yangi TV">
         <activity
             android:name="uz.yangi.app.MainActivity"
